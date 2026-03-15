@@ -41,6 +41,20 @@ class TSSUdpClient:
         raw = self._send_packet(0)
         return json.loads(raw.decode("utf-8"))
 
+    def fetch_eva_json(self) -> Dict[str, Any]:
+        # fetch the eva.json payload (command 1) and return it as a dict.
+        raw = self._send_packet(1)
+        return json.loads(raw.decode("utf-8"))
+
+    def fetch_ltv_json(self) -> Dict[str, Any]:
+        # fetch the ltv.json payload (command 2) and return it as a dict.
+        raw = self._send_packet(2)
+        return json.loads(raw.decode("utf-8"))
+    
+    def fetch_ltv_errors_json(self) -> Dict[str, Any]:
+        # fetch the ltv.errors.json payload (command 3) and return it as a dict.
+        raw = self._send_packet(3)
+        return json.loads(raw.decode("utf-8"))
 
     def set_brakes(self, engaged: bool) -> Dict[str, Any]:
         # command 1107: brakes, float: 0.0 or 1.0.
@@ -54,6 +68,28 @@ class TSSUdpClient:
     def set_steering(self, value: float) -> Dict[str, Any]:
         # command 1110: steering, float: -1.0 to 1.0.
         return self._send_bool_command(1110, "steering", value)
+
+    def set_heating(self, value: float) -> Dict[str, Any]:
+        # command 1103: heating, float: 0.0 to 1.0.
+        return self._send_bool_command(1103, "heating", value)
+
+    def set_cooling(self, value: float) -> Dict[str, Any]:
+        # command 1104: cooling, float: 0.0 to 1.0.
+        return self._send_bool_command(1104, "cooling", value)
+
+    def set_headlights(self, value: float) -> Dict[str, Any]:
+        # command 1106: headlights, float: 0.0 to 1.0.
+        return self._send_bool_command(1106, "headlights", value)
+
+    def send_ping(self, value: float = 1.0) -> Dict[str, Any]:
+        # command 2050: ping, float: 1. sending this command updates the json signal strength
+        # from fetch rover
+        return self._send_bool_command(2050, "ping", value)
+
+    def send_debug_ping(self, value: float = 1.0) -> Dict[str, Any]:
+        # command 2051: ping, float: 1. sending this command updates the json signal strength
+        # from fetch rover. same as 2050 however no rate limit
+        return self._send_bool_command(2051, "ping", value)
 
     def _send_bool_command(self, command: int, name: str, value: float) -> Dict[str, Any]:
         # helper for rover commands that expect a 4 byte boolean-like response
