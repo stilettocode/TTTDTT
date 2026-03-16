@@ -1,9 +1,14 @@
 // pages/Eva1.tsx
 import { useSocket } from '../context/SocketContext'
 import astronaut from '../assets/astronaut.png'
+import { useRandomIntInclusive } from '../util/rng'
 
 export default function Eva1Page() {
   const { evaData } = useSocket()
+  const eva1CoolantLiq = useRandomIntInclusive(498, 505)
+  const eva1CoolantGas = useRandomIntInclusive(496, 508)
+  const eva2CoolantLiq = useRandomIntInclusive(496, 520)
+  const eva2CoolantGas = useRandomIntInclusive(469, 499)
 
   return (
       <div style={{ background: '#0a0a0a', minHeight: '100vh', width: '100%', boxSizing: 'border-box', color: 'white', fontFamily: 'sans-serif', padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -35,11 +40,11 @@ export default function Eva1Page() {
                 <div style={{ fontSize: 11, color: '#aaa' }}>Temperature</div>
               </div>
               <div style={{ background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center'  }}>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#4af' }}>{evaData?.telemetry.eva1.coolant_liquid_pressure ?? '00'} <span style={{ fontSize: 12 }}>PSI</span></div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#4af' }}>{evaData?.telemetry.eva1.coolant_liquid_pressure ?? eva1CoolantLiq} <span style={{ fontSize: 12 }}>PSI</span></div>
                 <div style={{ fontSize: 11, color: '#aaa' }}>Coolant Liq Ps</div>
               </div>
               <div style={{ background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center'  }}>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#4af' }}>{evaData?.telemetry.eva1.coolant_gas_pressure ?? '00'} <span style={{ fontSize: 12 }}>PSI</span></div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#4af' }}>{evaData?.telemetry.eva1.coolant_gas_pressure ?? eva1CoolantGas} <span style={{ fontSize: 12 }}>PSI</span></div>
                 <div style={{ fontSize: 11, color: '#aaa' }}>Coolant Gas Ps</div>
               </div>
             </div>
@@ -72,11 +77,11 @@ export default function Eva1Page() {
                 <div style={{ fontSize: 11, color: '#aaa' }}>Temperature</div>
               </div>
               <div style={{ background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center'  }}>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#22cc55' }}>{evaData?.telemetry.eva2.coolant_liquid_pressure ?? '00'} <span style={{ fontSize: 12 }}>PSI</span></div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#22cc55' }}>{evaData?.telemetry.eva2.coolant_liquid_pressure ?? eva2CoolantLiq} <span style={{ fontSize: 12 }}>PSI</span></div>
                 <div style={{ fontSize: 11, color: '#aaa' }}>Coolant Liq Ps</div>
               </div>
               <div style={{ background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center'  }}>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#22cc55' }}>{evaData?.telemetry.eva2.coolant_gas_pressure ?? '00'} <span style={{ fontSize: 12 }}>PSI</span></div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#22cc55' }}>{evaData?.telemetry.eva2.coolant_gas_pressure ?? eva2CoolantGas} <span style={{ fontSize: 12 }}>PSI</span></div>
                 <div style={{ fontSize: 11, color: '#aaa' }}>Coolant Gas Ps</div>
               </div>
             </div>
