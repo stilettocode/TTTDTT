@@ -54,12 +54,32 @@ class TSSUdpClient:
     def set_steering(self, value: float) -> Dict[str, Any]:
         # command 1110: steering, float: -1.0 to 1.0.
         return self._send_bool_command(1110, "steering", value)
+    
+    def set_cabin_heating(self, value: float) -> Dict[str, Any]:
+        # command 1103: cabin heating, float: 0.0 to 1.0.
+        return self._send_bool_command(1103, "cabin_heating", value)
 
+    def set_cabin_cooling(self, value: float) -> Dict[str, Any]:
+        # command 1104: cabin cooling, float: 0.0 to 1.0.
+        return self._send_bool_command(1104, "cabin_cooling", value)
+
+    def set_headlights(self, value: float) -> Dict[str, Any]:
+        # command 1106: headlights, float: 0.0 to 1.0.
+        return self._send_bool_command(1106, "headlights", value)
+
+    def set_LTV_ping(self, value: float) -> Dict[str, Any]:
+        # command 2050: LTV ping, float: 0.0 to 1.0.
+        return self._send_bool_command(2050, "LTV_ping", value)
+
+    def set_LTV_ping_unlimited(self, value: float) -> Dict[str, Any]:
+        # command 2051: LTV ping unlimited, float: 0.0 to 1.0.
+        return self._send_bool_command(2051, "LTV_ping_unlimited", value)
+    
     def _send_bool_command(self, command: int, name: str, value: float) -> Dict[str, Any]:
         # helper for rover commands that expect a 4 byte boolean-like response
         # 0x01 00 00 00 => success
         # 0x00 00 00 00 => failure
-
+    
         raw = self._send_packet(command, value)
         success = bool(raw and raw[0] == 1)
         return {

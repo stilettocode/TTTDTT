@@ -14,7 +14,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading", logge
 
 
 #tss
-TSS_UDP_HOST = "172.21.220.116"
+TSS_UDP_HOST = "172.17.78.98"
 
 udp_client = TSSUdpClient(TSS_UDP_HOST)
 
@@ -31,6 +31,7 @@ def fetch_loop():
             rover_data = udp_client.fetch_rover_json()
             rover_data["local_timestamp"] = datetime.now().isoformat()
             socketio.emit("rover-telemetry", rover_data)
+            print(f"Rover data : {rover_data}")
         except Exception as e:
             error_data = {"error": str(e), "local_timestamp": datetime.now().isoformat()}
             print(f"Error: {error_data}")
