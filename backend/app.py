@@ -32,6 +32,26 @@ def fetch_loop():
             rover_data["local_timestamp"] = datetime.now().isoformat()
             socketio.emit("rover-telemetry", rover_data)
             print(f"Fetched rover data: {rover_data}")
+            time.sleep(1)
+
+            eva_data = udp_client.fetch_eva_json()
+            eva_data["local_timestamp"] = datetime.now().isoformat()
+            socketio.emit("eva-telemetry", eva_data)
+            print(f"Fetched eva data: {eva_data}")
+            time.sleep(1)
+
+            ltv_data = udp_client.fetch_ltv_json()
+            ltv_data["local_timestamp"] = datetime.now().isoformat()
+            socketio.emit("ltv-telemetry", ltv_data)
+            print(f"Fetched ltv data: {ltv_data}")
+            time.sleep(1)
+
+            ltv_errors_data = udp_client.fetch_ltv_errors_json()
+            ltv_errors_data["local_timestamp"] = datetime.now().isoformat()
+            socketio.emit("ltv-errors-telemetry", ltv_errors_data)
+            print(f"Fetched ltv errors data: {ltv_errors_data}")
+            time.sleep(1)
+
         except Exception as e:
             error_data = {"error": str(e), "local_timestamp": datetime.now().isoformat()}
             print(f"Error: {error_data}")
