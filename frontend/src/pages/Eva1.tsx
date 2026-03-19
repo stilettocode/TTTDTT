@@ -5,10 +5,12 @@ import { useRandomIntInclusive } from '../util/rng'
 
 export default function Eva1Page() {
   const { evaData } = useSocket()
-  const eva1CoolantLiq = useRandomIntInclusive(498, 505)
-  const eva1CoolantGas = useRandomIntInclusive(496, 508)
-  const eva2CoolantLiq = useRandomIntInclusive(496, 520)
-  const eva2CoolantGas = useRandomIntInclusive(469, 499)
+  // outdated, uncomment if you want random values
+  // const eva1CoolantLiq = useRandomIntInclusive(498, 505)
+  // const eva1CoolantGas = useRandomIntInclusive(496, 508)
+  // const eva2CoolantLiq = useRandomIntInclusive(496, 520)
+  // const eva2CoolantGas = useRandomIntInclusive(469, 499)
+
 
   return (
       <div style={{ background: '#0a0a0a', minHeight: '100vh', width: '100%', boxSizing: 'border-box', color: 'white', fontFamily: 'sans-serif', padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -22,11 +24,11 @@ export default function Eva1Page() {
           {/* Battery + O2 */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
             <div style={{ minHeight: 85, flex: 1, background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'  }}>
-              <div style={{ fontSize: 15, color: '#ffffff' }}>Battery <span style={{ color: '#4af', fontWeight: 700, fontSize:20 }}>{evaData?.telemetry.eva1.primary_battery_level ?? 80}%</span></div>
+              <div style={{ fontSize: 15, color: '#ffffff' }}>Battery <span style={{ color: '#4af', fontWeight: 700, fontSize:20 }}>{evaData?.telemetry.eva1.primary_battery_level ?? 'N/A'}%</span></div>
               <div style={{ fontSize: 11, color: '#aaa' }}>2h to full charge</div>
             </div>
             <div style={{ minHeight: 85, flex: 1, background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'  }}>
-              <div style={{ fontSize: 15, color: '#ffffff' }}>O₂ <span style={{ color: '#4af', fontWeight: 700, fontSize:20 }}>{evaData?.telemetry.eva1.oxy_pri_storage ?? 80}%</span></div>
+              <div style={{ fontSize: 15, color: '#ffffff' }}>O₂ <span style={{ color: '#4af', fontWeight: 700, fontSize:20 }}>{evaData?.telemetry.eva1.oxy_pri_storage ?? 'N/A'}%</span></div>
               <div style={{ fontSize: 11, color: '#aaa' }}>2h to full charge</div>
             </div>
           </div>
@@ -36,15 +38,15 @@ export default function Eva1Page() {
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ minHeight: 85, background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'  }}>
-                <div style={{ fontSize: 30, fontWeight: 700, color: '#4af' }}>{evaData?.telemetry.eva1.temperature ?? '98'} <span style={{ fontSize: 15, color: '#ffffff' }}>°F</span></div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: '#4af' }}>{(evaData?.telemetry.eva1.temperature)?.toFixed(0) ?? 'N/A'} <span style={{ fontSize: 15, color: '#ffffff' }}>°F</span></div>
                 <div style={{ fontSize: 15, color: '#ffffff' }}>Temperature</div>
               </div>
               <div style={{ minHeight: 85, background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'  }}>
-                <div style={{ fontSize: 30, fontWeight: 700, color: '#4af' }}>{evaData?.telemetry.eva1.coolant_liquid_pressure ?? eva1CoolantLiq} <span style={{ fontSize: 15, color: '#ffffff' }}>PSI</span></div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: '#4af' }}>{evaData?.telemetry.eva1.coolant_liquid_pressure ?? 'N/A'} <span style={{ fontSize: 15, color: '#ffffff' }}>PSI</span></div>
                 <div style={{ fontSize: 15, color: '#ffffff' }}>Coolant Liq Ps</div>
               </div>
               <div style={{ minHeight: 85, background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'  }}>
-                <div style={{ fontSize: 30, fontWeight: 700, color: '#4af' }}>{evaData?.telemetry.eva1.coolant_gas_pressure ?? eva1CoolantGas} <span style={{ fontSize: 15, color: '#ffffff' }}>PSI</span></div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: '#4af' }}>{evaData?.telemetry.eva1.coolant_gas_pressure ?? 'N/A'} <span style={{ fontSize: 15, color: '#ffffff' }}>PSI</span></div>
                 <div style={{ fontSize: 15, color: '#ffffff' }}>Coolant Gas Ps</div>
               </div>
             </div>
@@ -60,11 +62,11 @@ export default function Eva1Page() {
 
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
             <div style={{ minHeight: 85, flex: 1, background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'  }}>
-              <div style={{ fontSize: 15, color: '#ffffff' }}>Battery <span style={{ color: '#22cc55', fontWeight: 700, fontSize:20 }}>{evaData?.telemetry.eva2.secondary_battery_level ?? 80}%</span></div>
+              <div style={{ fontSize: 15, color: '#ffffff' }}>Battery <span style={{ color: '#22cc55', fontWeight: 700, fontSize:20 }}>{evaData?.telemetry.eva2.battery_level ?? 'N/A'}%</span></div>
               <div style={{ fontSize: 11, color: '#aaa' }}>2h to full charge</div>
             </div>
             <div style={{ minHeight: 85, flex: 1, background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'  }}>
-              <div style={{ fontSize: 15, color: '#ffffff' }}>O₂ <span style={{ color: '#22cc55', fontWeight: 700, fontSize:20 }}>{evaData?.telemetry.eva2.oxy_sec_storage ?? 80}%</span></div>
+              <div style={{ fontSize: 15, color: '#ffffff' }}>O₂ <span style={{ color: '#22cc55', fontWeight: 700, fontSize:20 }}>{evaData?.telemetry.eva2.oxy_sec_storage ?? 'N/A'}%</span></div>
               <div style={{ fontSize: 11, color: '#aaa' }}>2h to full charge</div>
             </div>
           </div>
@@ -73,15 +75,15 @@ export default function Eva1Page() {
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ minHeight: 85, background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'  }}>
-                <div style={{ fontSize: 30, fontWeight: 700, color: '#22cc55' }}>{evaData?.telemetry.eva2.temperature ?? '98'} <span style={{ fontSize: 15, color: '#ffffff' }}>°F</span></div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: '#22cc55' }}>{(evaData?.telemetry.eva1.temperature)?.toFixed(0) ?? 'N/A'} <span style={{ fontSize: 15, color: '#ffffff' }}>°F</span></div>
                 <div style={{ fontSize: 15, color: '#ffffff' }}>Temperature</div>
               </div>
               <div style={{ minHeight: 85, background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'  }}>
-                <div style={{ fontSize: 30, fontWeight: 700, color: '#22cc55' }}>{evaData?.telemetry.eva2.coolant_liquid_pressure ?? eva2CoolantLiq} <span style={{ fontSize: 15, color: '#ffffff' }}>PSI</span></div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: '#22cc55' }}>{evaData?.telemetry.eva2.coolant_liquid_pressure ?? 'N/A'} <span style={{ fontSize: 15, color: '#ffffff' }}>PSI</span></div>
                 <div style={{ fontSize: 15, color: '#ffffff' }}>Coolant Liq Ps</div>
               </div>
               <div style={{ minHeight: 85, background: '#141414', borderRadius: 8, padding: '8px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'  }}>
-                <div style={{ fontSize: 30, fontWeight: 700, color: '#22cc55' }}>{evaData?.telemetry.eva2.coolant_gas_pressure ?? eva2CoolantGas} <span style={{ fontSize: 15, color: '#ffffff' }}>PSI</span></div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: '#22cc55' }}>{evaData?.telemetry.eva2.coolant_gas_pressure ?? 'N/A'} <span style={{ fontSize: 15, color: '#ffffff' }}>PSI</span></div>
                 <div style={{ fontSize: 15, color: '#ffffff' }}>Coolant Gas Ps</div>
               </div>
             </div>

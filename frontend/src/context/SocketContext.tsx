@@ -29,8 +29,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
     socket.on('rover-telemetry', (data: RoverData) => setRoverData(data))
     socket.on('eva-telemetry', (data: EvaData) => setEvaData(data))
-    socket.on('ltv', (data: LtvData) => setLtvData(data))
-    socket.on('ltv-errors', (data: LtvErrorsData) => setLtvErrorsData(data))
+    socket.on('ltv-telemetry', (data: LtvData) => setLtvData(data))
+    socket.on('ltv-errors-telemetry', (data: LtvErrorsData) => setLtvErrorsData(data))
 
     socketRef.current = socket
     return () => { socket.disconnect() }

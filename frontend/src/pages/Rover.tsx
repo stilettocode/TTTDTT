@@ -2,7 +2,7 @@
 import { useSocket } from '../context/SocketContext'
 //import { useState, useRef } from 'react'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
-import mapImage from '../assets/lunar-map.png'
+import mapImage from '../assets/dust-map.png'
 import LeftPanel from '../components/LeftPanel'
 
 const IMAGE_WIDTH = 2452
