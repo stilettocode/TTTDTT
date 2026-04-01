@@ -7,6 +7,7 @@ import json
 from datetime import datetime
 
 from udp_client import TSSUdpClient
+from ai_llm import prompt, waypoint_store, waypoints_get
 
 app = Flask(__name__)
 CORS(app)
@@ -19,6 +20,11 @@ TSS_UDP_HOST = "172.22.87.131"
 udp_client = TSSUdpClient(TSS_UDP_HOST)
 
 is_running = True
+
+# Latest upstream AI payload as plain text; parse when you add logic.
+ai_inbound_raw: str = ""
+
+waypoints_stored: list[tuple[int, float, float, bool]] = []
 
 
 def fetch_loop():
@@ -67,6 +73,26 @@ def handle_connect():
 @socketio.on("disconnect")
 def handle_disconnect():
     print(f"Client disconnected: {request.sid}")
+
+
+@socketio.on("ai")
+def handle_ai(data):
+    global ai_inbound_raw
+    ai_inbound_raw = data if isinstance(data, str) else str(data)
+    # basically "if data is a string, set ai_inbound_raw to data, otherwise set it to the string representation of data"
+    print(f"AI inbound from {request.sid}: {ai_inbound_raw}")
+
+
+@socketio.on("waypoint_store")
+def handle_waypoint_store(data):
+    global waypoints_stored
+    waypoints_stored = [(int(r[0]), float(r[1]), float(r[2]), bool(r[3])) for r in data]
+    waypoint_store(waypoints_stored)
+
+
+@socketio.on("waypoints_get")
+def handle_waypoints_get():
+    waypoints_get()
 
 
 @app.route("/", methods=["GET", "POST"])
