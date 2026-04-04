@@ -7,7 +7,6 @@ import json
 from datetime import datetime
 
 from udp_client import TSSUdpClient
-from ai_llm import prompt, waypoint_store, waypoints_get
 
 app = Flask(__name__)
 CORS(app)
@@ -26,6 +25,9 @@ ai_inbound_raw: str = ""
 
 waypoints_stored: list[tuple[int, float, float, bool]] = []
 
+# Latest "matrix" payload from clients (2D int array); updated on each emit.
+matrix_stored: list[list[int]] = []
+
 
 def fetch_loop():
 
@@ -38,31 +40,36 @@ def fetch_loop():
             rover_data["local_timestamp"] = datetime.now().isoformat()
             socketio.emit("rover-telemetry", rover_data)
             print(f"Fetched rover data: {rover_data}")
-            time.sleep(1)
+            time.sleep(0.5)
 
             eva_data = udp_client.fetch_eva_json()
             eva_data["local_timestamp"] = datetime.now().isoformat()
             socketio.emit("eva-telemetry", eva_data)
             print(f"Fetched eva data: {eva_data}")
-            time.sleep(1)
+            time.sleep(0.5)
 
             ltv_data = udp_client.fetch_ltv_json()
             ltv_data["local_timestamp"] = datetime.now().isoformat()
             socketio.emit("ltv-telemetry", ltv_data)
             print(f"Fetched ltv data: {ltv_data}")
-            time.sleep(1)
+            time.sleep(0.5)
 
             ltv_errors_data = udp_client.fetch_ltv_errors_json()
             ltv_errors_data["local_timestamp"] = datetime.now().isoformat()
             socketio.emit("ltv-errors-telemetry", ltv_errors_data)
             print(f"Fetched ltv errors data: {ltv_errors_data}")
-            time.sleep(1)
+            time.sleep(0.5)
+
+            socketio.emit("matrix-sync", matrix_stored)
+            print(f"Matrix sync: {matrix_stored}")
+            time.sleep(0.5)
 
         except Exception as e:
             error_data = {"error": str(e), "local_timestamp": datetime.now().isoformat()}
             print(f"Error: {error_data}")
             socketio.emit("error", error_data)
-        time.sleep(2)
+
+        time.sleep(0.5)
 
 
 @socketio.on("connect")
@@ -75,24 +82,10 @@ def handle_disconnect():
     print(f"Client disconnected: {request.sid}")
 
 
-@socketio.on("ai")
-def handle_ai(data):
-    global ai_inbound_raw
-    ai_inbound_raw = data if isinstance(data, str) else str(data)
-    # basically "if data is a string, set ai_inbound_raw to data, otherwise set it to the string representation of data"
-    print(f"AI inbound from {request.sid}: {ai_inbound_raw}")
-
-
-@socketio.on("waypoint_store")
-def handle_waypoint_store(data):
-    global waypoints_stored
-    waypoints_stored = [(int(r[0]), float(r[1]), float(r[2]), bool(r[3])) for r in data]
-    waypoint_store(waypoints_stored)
-
-
-@socketio.on("waypoints_get")
-def handle_waypoints_get():
-    waypoints_get()
+@socketio.on("matrix")
+def handle_matrix(data):
+    global matrix_stored
+    matrix_stored = data
 
 
 @app.route("/", methods=["GET", "POST"])
