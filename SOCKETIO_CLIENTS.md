@@ -40,14 +40,15 @@ Register handlers with `@sio.on("<event_name>")` for each server event you care 
 ## TSS rover / status controls (`udp_client.py`)
 
 
-| `set_brakes(engaged: bool)` | 1107 | 
-| `set_throttle(value: float)` | 1109 | 
-| `set_steering(value: float)` | 1110 |
-| `set_heating(value: float)` | 1103 |
-| `set_cooling(value: float)` | 1104 |
-| `set_headlights(value: float)` | 1106 |
-| `send_ping(value=1.0)` | 2050 |
-| `send_debug_ping(value=1.0)` | 2051 | 
+`set_brakes(engaged: bool)` | 1107 
+`set_throttle(value: float)` | 1109 
+`set_steering(value: float)` | 1110 
+`set_heating(value: float)` | 1103
+`set_cooling(value: float)` | 1104
+`set_headlights(value: float)` | 1106
+
+`send_ping(value=1.0)` | 2050
+`send_debug_ping(value=1.0)` | 2051 
 
 Telemetry pulls (used by the server loop, not typical client emits): `fetch_rover_json` (0), `fetch_eva_json` (1), `fetch_ltv_json` (2), `fetch_ltv_errors_json` (3).
 
@@ -57,12 +58,12 @@ Read **NASA’s TSS** docs for full JSON field meanings
 
 ## From server to you <3
 
-| `rover-telemetry` | JSON object + `local_timestamp` (ISO) |
-| `ltv-telemetry` | JSON object + `local_timestamp` |
-| `ltv-errors-telemetry` | JSON object + `local_timestamp` |
-| `eva-telemetry` | JSON object + `local_timestamp` |
-| `matrix-sync` | 2D JSON array (nested lists); navigation / display matrix |
-| `error` | `{"error": str, "local_timestamp": str}` |
+`rover-telemetry` | JSON object + `local_timestamp` (ISO)
+`ltv-telemetry` | JSON object + `local_timestamp`
+`ltv-errors-telemetry` | JSON object + `local_timestamp`
+`eva-telemetry` | JSON object + `local_timestamp`
+`matrix-sync` | 2D JSON array (nested lists); navigation / display matrix
+`error` | `{"error": str, "local_timestamp": str}`
 
 `matrix-sync` is the 2D matrix for navigation/display on the frontend 
 
@@ -72,15 +73,15 @@ Read **NASA’s TSS** docs for full JSON field meanings
 
 Use **`sio.emit(event, data)`**; payloads must be JSON or Python objects
 
-| `rover-throttle` | Single float | 
-| `rover-steering` | Single float | 
-| `rover-brakes` | Boolean | 
-| `rover-heating` | Single float (0…1) | 
-| `rover-cooling` | Single float (0…1) | 
-| `rover-headlights` | Single float (0…1) | 
-| `rover-ping` | Optional float| 
-| `rover-debug-ping` | Optional float| 
-| `matrix` | 2D array |
+`rover-throttle` | Single float
+`rover-steering` | Single float
+`rover-brakes` | Boolean 
+`rover-heating` | Single float (0…1)
+`rover-cooling` | Single float (0…1)
+`rover-headlights` | Single float (0…1)
+`rover-ping` | Optional float
+`rover-debug-ping` | Optional float
+`matrix` | 2D array
 
 Examples:
 
