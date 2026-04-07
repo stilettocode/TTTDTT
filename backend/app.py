@@ -88,6 +88,46 @@ def handle_matrix(data):
     matrix_stored = data
 
 
+@socketio.on("rover-throttle")
+def handle_rover_throttle(data):
+    udp_client.set_throttle(float(data))
+
+
+@socketio.on("rover-steering")
+def handle_rover_steering(data):
+    udp_client.set_steering(float(data))
+
+
+@socketio.on("rover-brakes")
+def handle_rover_brakes(data):
+    udp_client.set_brakes(bool(data))
+
+
+@socketio.on("rover-heating")
+def handle_rover_heating(data):
+    udp_client.set_heating(float(data))
+
+
+@socketio.on("rover-cooling")
+def handle_rover_cooling(data):
+    udp_client.set_cooling(float(data))
+
+
+@socketio.on("rover-headlights")
+def handle_rover_headlights(data):
+    udp_client.set_headlights(float(data))
+
+
+@socketio.on("rover-ping")
+def handle_rover_ping(data=None):
+    udp_client.send_ping(1.0 if data is None else float(data))
+
+
+@socketio.on("rover-debug-ping")
+def handle_rover_debug_ping(data=None):
+    udp_client.send_debug_ping(1.0 if data is None else float(data))
+
+
 @app.route("/", methods=["GET", "POST"])
 def root():
     return "ok"
@@ -97,5 +137,5 @@ if __name__ == "__main__":
     # udp-based fetch loop
     fetch_thread = threading.Thread(target=fetch_loop, daemon=True)
     fetch_thread.start()
-    print("Starting Flask + SocketIO server on port 5001")
-    socketio.run(app, host="localhost", port=5001)
+    print("Starting Flask + SocketIO on 0.0.0.0:5001 (LAN clients use this host's IP)")
+    socketio.run(app, host="0.0.0.0", port=5001)
