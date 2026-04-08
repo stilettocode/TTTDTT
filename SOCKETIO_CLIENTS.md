@@ -10,8 +10,12 @@ This backend runs **Flask-SocketIO** on **TCP port 5001**, bound to **all interf
 
 ```python
 import socketio
+import threading
+import time
+from flask_socketio import SocketIO, emit
 
 sio = socketio.Client()
+is_running = True
 
 @sio.event
 def connect():
@@ -23,14 +27,32 @@ def disconnect():
 
 @sio.on("rover-telemetry")
 def on_rover(data):
-    print("rover", data)
+    print("rover ok")
 
 @sio.on("ltv-telemetry")
 def on_ltv(data):
-    print("ltv", data)
+    print("ltv ok")
 
-sio.connect("http://192.168.1.50:5001")
+sio.connect("http://127.0.0.1:5001")
+try:
+    sio.emit("rover-throttle", 100.0)
+    print("emit ok")
+except Exception as e:
+    print(f"Error sending rover throttle: {e}")
 sio.wait()
+```
+
+Note that the try: and except: aren't actually necessary, just nice to have. It can easily be:
+
+```python
+sio.emit("rover-throttle", 100.0) 
+```
+
+On its own. Or,
+
+```python
+if (case):
+    sio.emit("rover-throttle", 100,0)
 ```
 
 Register handlers with `@sio.on("<event_name>")` for each server event you care about.
