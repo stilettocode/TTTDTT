@@ -1,15 +1,19 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Eva1Page from './pages/Eva1'
-import Eva2Page from './pages/Eva2'
-import RoverPage from './pages/Rover'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Layout from './components/Layout'
+import EvaTelemetryPage from './pages/EvaTelemetryPage'
+import RoverLtvVideoPage from './pages/RoverLtvVideoPage'
+import MapWaypointsPage from './pages/MapWaypointsPage'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/eva1" element={<Eva1Page />} />
-        <Route path="/eva2" element={<Eva2Page />} />
-        <Route path="/rover" element={<RoverPage />} />
+        <Route element={<Layout />}>
+          <Route path="/" element={<Navigate to="/eva" replace />} />
+          <Route path="/eva" element={<EvaTelemetryPage />} />
+          <Route path="/rover-ltv" element={<RoverLtvVideoPage />} />
+          <Route path="/map" element={<MapWaypointsPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )

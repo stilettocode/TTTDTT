@@ -9,7 +9,7 @@ const IMAGE_WIDTH = 2452
 const IMAGE_HEIGHT = 1551
 
 export default function RoverPage() {
-  const { roverData } = useSocket()
+  useSocket()
 
   const scaleX = window.innerWidth / IMAGE_WIDTH
   const scaleY = window.innerHeight / IMAGE_HEIGHT

@@ -1,7 +1,6 @@
 // pages/Eva1.tsx
 import { useSocket } from '../context/SocketContext'
 import astronaut from '../assets/astronaut.png'
-import { useRandomIntInclusive } from '../util/rng'
 
 export default function Eva1Page() {
   const { evaData } = useSocket()

@@ -13,7 +13,7 @@ CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading", logger=True, engineio_logger=True)
 
 #tss
-TSS_UDP_HOST = "172.22.87.131"
+TSS_UDP_HOST = "172.21.220.116"
 
 udp_client = TSSUdpClient(TSS_UDP_HOST)
 
