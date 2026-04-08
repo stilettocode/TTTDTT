@@ -14,7 +14,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading", logge
 
 
 #tss
-TSS_UDP_HOST = "172.22.87.131"
+TSS_UDP_HOST = "172.24.149.156"
 
 udp_client = TSSUdpClient(TSS_UDP_HOST)
 
