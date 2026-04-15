@@ -1,5 +1,6 @@
 import React from 'react'
 import { useSocket } from '../context/SocketContext'
+import astronaut from '../assets/astronaut.png'
 
 // ── tiny inline SVG icons ──────────────────────────────────────────────
 const IconBattery = ({ color = '#4a7adf' }) => (
@@ -92,85 +93,68 @@ const IconTemp = ({ color = '#4a7adf' }) => (
   </svg>
 )
 
-// ── spacesuit SVG ──────────────────────────────────────────────────────
-const SpaceSuit = ({ variant }: { variant: 'eva1' | 'eva2' }) => {
-  const isEva2 = variant === 'eva2'
-  const bodyFill = isEva2 ? '#0f1a12' : '#11131e'
-  const bodyStroke = isEva2 ? '#1a2e1e' : '#1e2240'
-  const innerFill = isEva2 ? '#0a1a0d' : '#0a0d1a'
-  const innerStroke = isEva2 ? '#1e4028' : '#2a3060'
-  const panelFill = isEva2 ? '#0c150e' : '#0d0f1c'
-  const panelStroke = isEva2 ? '#162014' : '#1a1d38'
-  const dotColor = isEva2 ? '#4aaf7a' : '#4a7adf'
-  const barColor = isEva2 ? '#4aaf7a' : '#4a7adf'
-  const ringColor = isEva2 ? '#4aaf7a' : '#4a7adf'
-  const unitLabel = isEva2 ? 'UNIT 2' : 'UNIT 1'
-  const unitColor = isEva2 ? '#1a4a2a' : '#2a3a7a'
+// ── Improved IMU icons ─────────────────────────────────────────────────
+const IconPosX = ({ color = '#4a7adf' }) => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    {/* axes */}
+    <line x1="2" y1="12" x2="12" y2="12" stroke={color} strokeWidth="1.1" strokeLinecap="round" strokeOpacity="0.6" />
+    <line x1="2" y1="2" x2="2" y2="12" stroke={color} strokeWidth="1.1" strokeLinecap="round" strokeOpacity="0.6" />
+    {/* X axis arrowhead */}
+    <polyline points="10,10.5 12,12 10,13.5" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" />
+    {/* dot on x-axis */}
+    <circle cx="8" cy="12" r="1.4" fill={color} />
+    {/* dashed line from origin to dot */}
+    <line x1="2" y1="12" x2="8" y2="12" stroke={color} strokeWidth="0.7" strokeDasharray="1.5 1" strokeOpacity="0.45" />
+  </svg>
+)
 
+const IconPosY = ({ color = '#4a7adf' }) => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    {/* axes */}
+    <line x1="2" y1="12" x2="12" y2="12" stroke={color} strokeWidth="1.1" strokeLinecap="round" strokeOpacity="0.6" />
+    <line x1="2" y1="2" x2="2" y2="12" stroke={color} strokeWidth="1.1" strokeLinecap="round" strokeOpacity="0.6" />
+    {/* Y axis arrowhead */}
+    <polyline points="0.5,4 2,2 3.5,4" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" />
+    {/* dot on y-axis */}
+    <circle cx="2" cy="6" r="1.4" fill={color} />
+    {/* dashed line from origin to dot */}
+    <line x1="2" y1="12" x2="2" y2="6" stroke={color} strokeWidth="0.7" strokeDasharray="1.5 1" strokeOpacity="0.45" />
+  </svg>
+)
+
+const IconCompass = ({ color = '#4a7adf', heading = 0 }: { color?: string; heading?: number }) => {
+  const rad = (heading * Math.PI) / 180
+  const nx = 7 + 3.5 * Math.sin(rad)
+  const ny = 7 - 3.5 * Math.cos(rad)
+  const sx = 7 - 2.2 * Math.sin(rad)
+  const sy = 7 + 2.2 * Math.cos(rad)
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-      <svg width="80" height="130" viewBox="0 0 80 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* helmet */}
-        <ellipse cx="40" cy="18" rx="14" ry="15" fill={bodyFill} stroke={bodyStroke} strokeWidth="1.5" />
-        <ellipse cx="40" cy="17" rx="9" ry="10" fill={innerFill} stroke={innerStroke} strokeWidth="1" />
-        <ellipse cx="40" cy="16" rx="6" ry="7" fill={innerFill} fillOpacity=".8" />
-        {/* torso */}
-        <rect x="20" y="30" width="40" height="48" rx="12" fill={bodyFill} stroke={bodyStroke} strokeWidth="1.5" />
-        <rect x="23" y="35" width="34" height="36" rx="9" fill={panelFill} stroke={panelStroke} strokeWidth="1" />
-        {/* chest panel */}
-        <rect x="28" y="40" width="24" height="12" rx="4" fill={innerFill} stroke={innerStroke} strokeWidth=".8" />
-        <circle cx="31" cy="46" r="2.5" fill={isEva2 ? '#1e4030' : '#1e3060'} />
-        <circle cx="31" cy="46" r="1.5" fill={dotColor} fillOpacity=".7" />
-        <circle cx="40" cy="46" r="2.5" fill={isEva2 ? '#1e4030' : '#1e3060'} />
-        <circle cx="40" cy="46" r="1.5" fill={dotColor} fillOpacity=".5" />
-        <circle cx="49" cy="46" r="2.5" fill={isEva2 ? '#1e4030' : '#1e3060'} />
-        <circle cx="49" cy="46" r="1.5" fill={dotColor} fillOpacity=".3" />
-        {/* chest bars */}
-        <rect x="29" y="57" width="22" height="3" rx="1.5" fill={panelStroke} />
-        <rect x="29" y="57" width="22" height="3" rx="1.5" fill={barColor} fillOpacity=".4" />
-        <rect x="29" y="62" width={isEva2 ? '10' : '14'} height="3" rx="1.5" fill={panelStroke} />
-        <rect x="29" y="62" width={isEva2 ? '10' : '14'} height="3" rx="1.5"
-          fill={isEva2 ? '#c44a4a' : barColor} fillOpacity=".4" />
-        {/* arms */}
-        <rect x="8" y="32" width="14" height="36" rx="7" fill={bodyFill} stroke={bodyStroke} strokeWidth="1.5" />
-        <rect x="10" y="38" width="10" height="20" rx="5" fill={panelFill} />
-        <rect x="58" y="32" width="14" height="36" rx="7" fill={bodyFill} stroke={bodyStroke} strokeWidth="1.5" />
-        <rect x="60" y="38" width="10" height="20" rx="5" fill={panelFill} />
-        {/* legs */}
-        <rect x="26" y="76" width="12" height="30" rx="6" fill={bodyFill} stroke={bodyStroke} strokeWidth="1.5" />
-        <rect x="42" y="76" width="12" height="30" rx="6" fill={bodyFill} stroke={bodyStroke} strokeWidth="1.5" />
-        {/* boots */}
-        <rect x="28" y="102" width="8" height="12" rx="4" fill={panelFill} stroke={panelStroke} strokeWidth="1" />
-        <rect x="44" y="102" width="8" height="12" rx="4" fill={panelFill} stroke={panelStroke} strokeWidth="1" />
-        {/* halo ring */}
-        <circle cx="40" cy="55" r="20" stroke={ringColor} strokeWidth=".5" strokeOpacity=".15" />
-        {/* EVA-2 warning indicator */}
-        {isEva2 && (
-          <>
-            <circle cx="13" cy="52" r="3" fill="#c44a4a" fillOpacity=".5" />
-            <circle cx="13" cy="52" r="1.5" fill="#c44a4a" />
-          </>
-        )}
-      </svg>
-      <span style={{ fontSize: 10, letterSpacing: 2, color: unitColor, textTransform: 'uppercase' as const }}>
-        {unitLabel}
-      </span>
-    </div>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <circle cx="7" cy="7" r="5.5" stroke={color} strokeWidth="1" strokeOpacity="0.5" />
+      {/* Cardinal ticks */}
+      <line x1="7" y1="1.5" x2="7" y2="3" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeOpacity="0.5" />
+      <line x1="7" y1="11" x2="7" y2="12.5" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeOpacity="0.5" />
+      <line x1="1.5" y1="7" x2="3" y2="7" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeOpacity="0.5" />
+      <line x1="11" y1="7" x2="12.5" y2="7" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeOpacity="0.5" />
+      {/* Needle */}
+      <line x1={sx} y1={sy} x2={nx} y2={ny} stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <circle cx="7" cy="7" r="1" fill={color} />
+    </svg>
   )
 }
 
 // ── shared sub-components ──────────────────────────────────────────────
 const SectionLabel = ({ children, color }: { children: React.ReactNode; color?: string }) => (
   <div style={{
-    fontSize: 9, letterSpacing: 3, color: color ?? '#2e3050',
-    textTransform: 'uppercase', marginBottom: 8,
+    fontSize: 9, letterSpacing: 3, color: color ?? '#7dd3fc',
+    textTransform: 'uppercase', marginBottom: 4,
   }}>
     {children}
   </div>
 )
 
 const Divider = () => (
-  <div style={{ height: 1, background: '#0e0f1c' }} />
+  <div style={{ height: 1, background: 'rgba(56,189,248,0.14)' }} />
 )
 
 interface MiniBarProps {
@@ -182,19 +166,19 @@ interface MiniBarProps {
   valueColor?: string
 }
 
-const MiniBar = ({ icon, label, value, pct, fillColor = '#2a2c48', valueColor = '#3a3c58' }: MiniBarProps) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+const MiniBar = ({ icon, label, value, pct, fillColor = '#2a2c48', valueColor }: MiniBarProps) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
     <div style={{
       width: 20, height: 20, flexShrink: 0,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
       {icon}
     </div>
-    <span style={{ fontSize: 10, color: '#3a3c58', width: 72, flexShrink: 0 }}>{label}</span>
-    <div style={{ flex: 1, height: 3, background: '#0d0e1a', borderRadius: 2, overflow: 'hidden' }}>
-      <div style={{ width: `${Math.min(100, Math.max(0, pct))}%`, height: '100%', background: fillColor, borderRadius: 2 }} />
+    <span style={{ fontSize: 10, color: valueColor ?? fillColor, width: 72, flexShrink: 0 }}>{label}</span>
+    <div style={{ flex: 1, height: 3, background: '#0f172a', borderRadius: 2, overflow: 'hidden', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.35)' }}>
+      <div style={{ width: `${Math.min(100, Math.max(0, pct))}%`, height: '100%', background: fillColor, borderRadius: 2, boxShadow: `0 0 4px ${fillColor}33` }} />
     </div>
-    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: valueColor, minWidth: 46, textAlign: 'right' }}>
+    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: valueColor ?? fillColor, minWidth: 46, textAlign: 'right' }}>
       {value}
     </span>
   </div>
@@ -212,19 +196,20 @@ interface GaugeRowProps {
 const GaugeRow = ({ icon, label, value, pct, fillColor = '#4a7adf', valueColor }: GaugeRowProps) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 0 }}>
     <div style={{
-      width: 28, height: 28, flexShrink: 0,
+      width: 22, height: 22, flexShrink: 0,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      borderRadius: 6, background: '#0d0e1a', border: '1px solid #14152a',
+      borderRadius: 6, background: '#0f172a', border: '1px solid rgba(56,189,248,0.2)',
+      boxShadow: '0 2px 12px rgba(56,189,248,0.08)',
     }}>
       {icon}
     </div>
     <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 9, letterSpacing: 2, color: '#2e3050', textTransform: 'uppercase', marginBottom: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ fontSize: 9, letterSpacing: 2, color: valueColor ?? fillColor, textTransform: 'uppercase', marginBottom: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span>{label}</span>
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: valueColor ?? fillColor }}>{value}</span>
       </div>
-      <div style={{ height: 4, background: '#0d0e1a', borderRadius: 2, overflow: 'hidden' }}>
-        <div style={{ width: `${Math.min(100, Math.max(0, pct))}%`, height: '100%', background: fillColor, borderRadius: 2 }} />
+      <div style={{ height: 4, background: '#0f172a', borderRadius: 2, overflow: 'hidden', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.35)' }}>
+        <div style={{ width: `${Math.min(100, Math.max(0, pct))}%`, height: '100%', background: fillColor, borderRadius: 2, boxShadow: `0 0 14px ${fillColor}33` }} />
       </div>
     </div>
   </div>
@@ -233,40 +218,43 @@ const GaugeRow = ({ icon, label, value, pct, fillColor = '#4a7adf', valueColor }
 interface ToggleProps { label: string; on: boolean }
 const Toggle = ({ label, on }: ToggleProps) => (
   <div style={{
-    background: '#0a0b14', border: '1px solid #12131f',
-    borderRadius: 5, padding: '6px 4px', textAlign: 'center',
+    background: on ? 'rgba(34,197,94,0.18)' : 'rgba(248,113,113,0.16)',
+    border: `1px solid ${on ? 'rgba(34,197,94,0.35)' : 'rgba(248,113,113,0.35)'}`,
+    borderRadius: 8, padding: '8px 6px', textAlign: 'center',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
   }}>
-    <div style={{ fontSize: 8, letterSpacing: 1, color: '#2e3050', textTransform: 'uppercase', marginBottom: 3 }}>{label}</div>
-    <div style={{ fontSize: 9, fontWeight: 500, color: on ? '#4a8a5a' : '#7a3a3a' }}>{on ? 'ON' : 'OFF'}</div>
+    <div style={{ fontSize: 8, letterSpacing: 1, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 4 }}>{label}</div>
+    <div style={{ fontSize: 10, fontWeight: 700, color: on ? '#dcfce7' : '#fecaca' }}>{on ? 'ON' : 'OFF'}</div>
   </div>
 )
 
 interface AlertCardProps { title: string; sub: string; level?: 'danger' | 'warn' }
 const AlertCard = ({ title, sub, level = 'danger' }: AlertCardProps) => (
   <div style={{
-    background: level === 'danger' ? '#0f0a0a' : '#0f0c08',
-    border: `1px solid ${level === 'danger' ? '#1e1010' : '#1e1608'}`,
-    borderLeft: `2px solid ${level === 'danger' ? '#7a2a2a' : '#7a5a1a'}`,
-    borderRadius: 4, padding: '8px 10px', marginBottom: 6,
+    background: level === 'danger' ? 'rgba(248,113,113,0.18)' : 'rgba(250,204,21,0.16)',
+    border: `1px solid ${level === 'danger' ? 'rgba(248,113,113,0.35)' : 'rgba(250,204,21,0.32)'}`,
+    borderLeft: `4px solid ${level === 'danger' ? '#f87171' : '#fde047'}`,
+    borderRadius: 6, padding: '10px 12px', marginBottom: 8,
+    boxShadow: level === 'danger' ? '0 4px 12px rgba(248,113,113,0.16)' : '0 4px 12px rgba(250,204,21,0.12)',
   }}>
-    <div style={{ fontSize: 11, color: level === 'danger' ? '#b07070' : '#a08050', fontWeight: 500, marginBottom: 2 }}>{title}</div>
-    <div style={{ fontSize: 10, color: '#3a3050' }}>{sub}</div>
+    <div style={{ fontSize: 12, color: level === 'danger' ? '#fee2e2' : '#fef9c3', fontWeight: 600, marginBottom: 4 }}>{title}</div>
+    <div style={{ fontSize: 11, color: '#cbd5e1' }}>{sub}</div>
   </div>
 )
 
 interface TaskItemProps { status: 'complete' | 'active' | 'upcoming'; name: string; sub?: string; pct: number }
 const TaskItem = ({ status, name, sub, pct }: TaskItemProps) => {
-  const statusColor = status === 'complete' ? '#3a6a4a' : status === 'active' ? '#4a4a8a' : '#2e3050'
-  const nameColor = status === 'complete' ? '#4a6a5a' : status === 'active' ? '#8890b8' : '#2e3060'
-  const barColor = status === 'complete' ? '#2a4a3a' : '#3a3a7a'
+  const statusColor = status === 'complete' ? '#7dd3fc' : status === 'active' ? '#38bdf8' : '#cbd5e1'
+  const nameColor = status === 'complete' ? '#e2e8f0' : status === 'active' ? '#e2e8f0' : '#cbd5e1'
+  const barColor = status === 'complete' ? '#38bdf8' : status === 'active' ? '#38bdf8' : '#64748b'
   return (
     <div style={{ padding: '10px 0', borderBottom: '1px solid #0e0f1c' }}>
       <div style={{ fontSize: 8, letterSpacing: 2, textTransform: 'uppercase', color: statusColor, marginBottom: 3 }}>
         {status}
       </div>
       <div style={{ fontSize: 12, color: nameColor, marginBottom: sub ? 4 : 5, fontWeight: 500 }}>{name}</div>
-      {sub && <div style={{ fontSize: 10, color: '#2e3050', marginBottom: 5 }}>{sub}</div>}
-      <div style={{ height: 2, background: '#0d0e1a', borderRadius: 2, overflow: 'hidden' }}>
+      {sub && <div style={{ fontSize: 10, color: '#cbd5e1', marginBottom: 5 }}>{sub}</div>}
+      <div style={{ height: 2, background: '#0f172a', borderRadius: 2, overflow: 'hidden' }}>
         <div style={{ width: `${pct}%`, height: '100%', background: barColor, borderRadius: 2 }} />
       </div>
     </div>
@@ -276,30 +264,105 @@ const TaskItem = ({ status, name, sub, pct }: TaskItemProps) => {
 // ── column wrapper ─────────────────────────────────────────────────────
 const Col = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (
   <div style={{
-    borderRight: '1px solid #0e0f1c', padding: '18px 16px',
-    display: 'flex', flexDirection: 'column', gap: 14, ...style,
+    borderRight: '1px solid rgba(56,189,248,0.12)', padding: '10px 14px',
+    display: 'flex', flexDirection: 'column', gap: 8, ...style,
+    background: 'rgba(15, 23, 42, 0.92)',
+    backdropFilter: 'blur(8px)',
+    boxShadow: 'inset 0 0 0 1px rgba(56,189,248,0.05)',
+    overflowY: 'auto',
   }}>
     {children}
   </div>
 )
 
 // ── ImuBox ─────────────────────────────────────────────────────────────
-const ImuBox = ({ label, labelColor, x, y, heading }: {
-  label: string; labelColor: string; x: number; y: number; heading: number
-}) => (
-  <div style={{
-    background: '#0a0b14', border: '1px solid #12131f',
-    borderRadius: 5, padding: '8px 10px', marginBottom: 6,
-  }}>
-    <div style={{ fontSize: 8, letterSpacing: 2, color: labelColor, marginBottom: 5, textTransform: 'uppercase' as const }}>{label}</div>
-    {[['POS X', x.toFixed(3)], ['POS Y', y.toFixed(3)], ['HEADING', `${heading}°`]].map(([k, v]) => (
-      <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
-        <span style={{ fontSize: 9, color: '#2a2c48' }}>{k}</span>
-        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 9, color: '#5a5c80' }}>{v}</span>
+interface ImuBoxProps {
+  label: string
+  labelColor: string
+  x: number
+  y: number
+  heading: number
+}
+
+const ImuBox = ({ label, labelColor, x, y, heading }: ImuBoxProps) => {
+  const rows: Array<{ key: string; icon: React.ReactNode; val: string; sub: string }> = [
+    {
+      key: 'posx',
+      icon: <IconPosX color={labelColor} />,
+      val: x.toFixed(1),
+      sub: 'X coord',
+    },
+    {
+      key: 'posy',
+      icon: <IconPosY color={labelColor} />,
+      val: y.toFixed(1),
+      sub: 'Y coord',
+    },
+    {
+      key: 'hdg',
+      icon: <IconCompass color={labelColor} heading={heading} />,
+      val: `${heading.toFixed(1)}°`,
+      sub: 'Heading',
+    },
+  ]
+
+  return (
+    <div style={{
+      background: 'rgba(15,23,42,0.7)',
+      border: `1px solid ${labelColor}28`,
+      borderRadius: 8,
+      padding: '6px 8px 5px',
+      marginBottom: 2,
+    }}>
+      <div style={{
+        fontSize: 8, letterSpacing: 3, color: labelColor,
+        textTransform: 'uppercase', opacity: 0.7, marginBottom: 5,
+      }}>
+        IMU position
       </div>
-    ))}
-  </div>
-)
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {rows.map(({ key, icon, val, sub }) => (
+          <div key={key} style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            {/* icon box */}
+            <div style={{
+              width: 20, height: 20, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              borderRadius: 5,
+              background: `${labelColor}12`,
+              border: `1px solid ${labelColor}28`,
+            }}>
+              {icon}
+            </div>
+
+            {/* label */}
+            <span style={{
+              fontSize: 9, letterSpacing: 1.5,
+              color: labelColor, opacity: 0.7,
+              textTransform: 'uppercase',
+              width: 52, flexShrink: 0,
+            }}>
+              {sub}
+            </span>
+
+            {/* value */}
+            <span style={{
+              fontFamily: 'DM Mono, monospace',
+              fontSize: 10,
+              color: labelColor,
+              marginLeft: 'auto',
+              letterSpacing: 0.5,
+            }}>
+              {val}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 // ══════════════════════════════════════════════════════════════════════
 // MAIN PAGE
@@ -429,34 +492,36 @@ export default function Eva1Page() {
   }
 
   // ── color tokens ──────────────────────────────────────────────────
-const blue = '#4DA3FF'
-const blueDim = '#2D7DFF'
-const green = '#36E58C'
-const greenDim = '#1DBF73'
-const warn = '#FFB84D'
-const danger = '#FF5A5A'
-const dim = '#4B5275'
+  const blue = '#38BDF8'
+  const blueDim = '#0EA5E9'
+  const green = '#36E58C'
+  const greenDim = '#1DBF73'
 
   // ── layout styles ─────────────────────────────────────────────────
   const shell: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr 1fr 230px',
-    gridTemplateRows: '52px 1fr',
-    minHeight: '100vh',
-    background: '#070810',
-    color: '#c8cce0',
+    width: '100vw',
+    height: '100vh',
+    gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(220px, 260px)',
+    gridTemplateRows: 'auto 1fr',
+    background: '#07101b',
+    color: '#e2e8f0',
     fontFamily: "'DM Sans', sans-serif",
     fontSize: 13,
+    overflow: 'hidden',
+    boxSizing: 'border-box',
   }
 
   const topbar: React.CSSProperties = {
     gridColumn: '1 / -1',
-    background: '#070810',
-    borderBottom: '1px solid #12131f',
+    background: 'rgba(15, 20, 28, 0.97)',
+    borderBottom: '1px solid rgba(56, 189, 248, 0.18)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '0 24px',
+    backdropFilter: 'blur(8px)',
+    boxShadow: '0 1px 0 rgba(56,189,248,0.08)',
   }
 
   return (
@@ -466,20 +531,25 @@ const dim = '#4B5275'
       <div style={topbar}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{
-            background: '#0d0e1a', border: '1px solid #1a1b2e', borderRadius: 4,
-            padding: '4px 12px', fontSize: 10, letterSpacing: 3, color: '#3a3c58', textTransform: 'uppercase',
+            background: '#0f172a', border: '1px solid rgba(56,189,248,0.22)', borderRadius: 4,
+            padding: '4px 12px', fontSize: 10, letterSpacing: 3, color: '#cbd5e1', textTransform: 'uppercase',
           }}>
             ISS-EVA-047
           </div>
-          <div style={{ fontSize: 13, fontWeight: 500, color: '#8890b8', letterSpacing: 1 }}>
-            Extravehicular Activity
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: '#8890b8', letterSpacing: 1 }}>
+              Extravehicular Activity
+            </div>
+            <div style={{ fontSize: 10, color: backendConnected ? '#c8f9ff' : '#94a3b8', letterSpacing: 1, opacity: 0.95 }}>
+              {backendStatusLabel}
+            </div>
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 22, fontWeight: 300, color: '#c8cce0', letterSpacing: 4 }}>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 22, fontWeight: 300, color: '#c8cce0', letterSpacing: 4, textShadow: '0 0 10px rgba(56,189,248,0.5)' }}>
             {formatElapsedTime(missionElapsed)}
           </div>
-          <div style={{ fontSize: 9, letterSpacing: 3, color: '#2e3050', textTransform: 'uppercase', marginTop: 1 }}>
+          <div style={{ fontSize: 9, letterSpacing: 3, color: '#8890b8', textTransform: 'uppercase', marginTop: 1 }}>
             mission elapsed
           </div>
         </div>
@@ -498,19 +568,27 @@ const dim = '#4B5275'
 
       {/* ── EVA-1 column ───────────────────────────────────────────── */}
       <Col>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 9, letterSpacing: 3, color: '#2e3050', textTransform: 'uppercase' }}>Suit telemetry</span>
-          <span style={{ fontSize: 11, fontWeight: 500, color: blue }}>EVA-1</span>
-        </div>        <div style={{ fontSize: 10, color: backendConnected ? '#4a8a5a' : '#7a6a6a', marginBottom: 10 }}>
-          {backendStatusLabel}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 9, letterSpacing: 3, color: blue, textTransform: 'uppercase' }}>Suit telemetry</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: '#c8f9ff', textShadow: '0 0 12px rgba(56,189,248,0.22)' }}>EVA-1</span>
         </div>
+
         {/* hero */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12 }}>
-          <SpaceSuit variant="eva1" />
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <GaugeRow icon={<IconBattery color={blue} />} label="Primary battery" value={`${eva1.primary_battery_level}%`} pct={eva1.primary_battery_level} fillColor={blue} />
-            <GaugeRow icon={<IconBattery color={blueDim} />} label="Secondary battery" value={`${eva1.secondary_battery_level}%`} pct={eva1.secondary_battery_level} fillColor={blue} />
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+          <div style={{ width: 90, flexShrink: 0, borderRadius: 18, padding: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.22)', boxShadow: '0 0 20px rgba(56,189,248,0.14)' }}>
+            <img src={astronaut} alt="EVA-1 astronaut" style={{ width: 72, objectFit: 'contain', filter: 'drop-shadow(0 0 14px rgba(56,189,248,0.45))' }} />
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <GaugeRow icon={<IconBattery color={blue} />} label="Primary battery" value={`${eva1.primary_battery_level.toFixed(0)}%`} pct={eva1.primary_battery_level} fillColor={blue} />
+            <GaugeRow icon={<IconBattery color={blueDim} />} label="Secondary battery" value={`${eva1.secondary_battery_level.toFixed(0)}%`} pct={eva1.secondary_battery_level} fillColor={blue} />
             <GaugeRow icon={<IconTemp color={blue} />} label="Suit temp" value={`${eva1.temperature.toFixed(1)}°F`} pct={(eva1.temperature / 50) * 100} fillColor={blue} />
+            <ImuBox
+              label="EVA-1 IMU"
+              labelColor={blue}
+              x={imu.eva1.posx}
+              y={imu.eva1.posy}
+              heading={imu.eva1.heading}
+            />
           </div>
         </div>
 
@@ -518,102 +596,110 @@ const dim = '#4B5275'
 
         <div>
           <SectionLabel>Oxygen</SectionLabel>
-          <MiniBar icon={<IconO2 color={blue} />} label="Pri storage" value={`${eva1.oxy_pri_storage}%`} pct={eva1.oxy_pri_storage} fillColor={blue} valueColor={blue} />
-          <MiniBar icon={<IconO2 color={blueDim} />} label="Sec storage" value={`${eva1.oxy_sec_storage}%`} pct={eva1.oxy_sec_storage} fillColor={blue} valueColor={blue} />
-          <MiniBar icon={<IconPressure color={blueDim} />} label="Pri pressure" value={`${eva1.oxy_pri_pressure} PSI`} pct={(eva1.oxy_pri_pressure / 1000) * 100} fillColor={dim} />
-          <MiniBar icon={<IconPressure color={blueDim} />} label="Sec pressure" value={`${eva1.oxy_sec_pressure} PSI`} pct={(eva1.oxy_sec_pressure / 1000) * 100} fillColor={dim} />
-          <MiniBar icon={<IconSuitPressure color={blueDim} />} label="Suit O₂ ps" value={`${eva1.suit_pressure_oxy} PSI`} pct={(eva1.suit_pressure_oxy / 5) * 100} fillColor={blue} valueColor={blue} />
+          <MiniBar icon={<IconO2 color={blue} />} label="Pri storage" value={`${eva1.oxy_pri_storage.toFixed(0)}%`} pct={eva1.oxy_pri_storage} fillColor={blue} />
+          <MiniBar icon={<IconO2 color={blueDim} />} label="Sec storage" value={`${eva1.oxy_sec_storage.toFixed(0)}%`} pct={eva1.oxy_sec_storage} fillColor={blue} />
+          <MiniBar icon={<IconPressure color={blueDim} />} label="Pri pressure" value={`${eva1.oxy_pri_pressure.toFixed(1)} PSI`} pct={(eva1.oxy_pri_pressure / 1000) * 100} fillColor={blue} />
+          <MiniBar icon={<IconPressure color={blueDim} />} label="Sec pressure" value={`${eva1.oxy_sec_pressure.toFixed(1)} PSI`} pct={(eva1.oxy_sec_pressure / 1000) * 100} fillColor={blue} />
+          <MiniBar icon={<IconSuitPressure color={blueDim} />} label="Suit O₂ ps" value={`${eva1.suit_pressure_oxy.toFixed(1)} PSI`} pct={(eva1.suit_pressure_oxy / 5) * 100} fillColor={blue} />
         </div>
 
         <Divider />
 
         <div>
           <SectionLabel>Coolant</SectionLabel>
-          <MiniBar icon={<IconDroplet color={blue} />} label="Storage" value={`${eva1.coolant_storage}%`} pct={eva1.coolant_storage} fillColor={blue} valueColor={blue} />
-          <MiniBar icon={<IconWave color={blue} />} label="Liquid ps" value={`${eva1.coolant_liquid_pressure}`} pct={(eva1.coolant_liquid_pressure / 600) * 100} fillColor={blue} valueColor={blue} />
-          <MiniBar icon={<IconDroplet color={dim} />} label="Gas ps" value={`${eva1.coolant_gas_pressure}`} pct={(eva1.coolant_gas_pressure / 100) * 100} fillColor={dim} />
+          <MiniBar icon={<IconDroplet color={blue} />} label="Storage" value={`${eva1.coolant_storage.toFixed(0)}%`} pct={eva1.coolant_storage} fillColor={blue} />
+          <MiniBar icon={<IconWave color={blue} />} label="Liquid ps" value={`${eva1.coolant_liquid_pressure.toFixed(1)}`} pct={(eva1.coolant_liquid_pressure / 600) * 100} fillColor={blue} />
+          <MiniBar icon={<IconDroplet color={blue} />} label="Gas ps" value={`${eva1.coolant_gas_pressure.toFixed(1)}`} pct={(eva1.coolant_gas_pressure / 100) * 100} fillColor={blue} />
         </div>
 
         <Divider />
 
         <div>
           <SectionLabel>Fans &amp; Scrubbers</SectionLabel>
-          <MiniBar icon={<IconFan color={blue} />} label="Fan primary" value={`${(eva1.fan_pri_rpm / 1000).toFixed(0)}k`} pct={(eva1.fan_pri_rpm / 40000) * 100} fillColor={blue} valueColor={blue} />
-          <MiniBar icon={<IconFan color={dim} />} label="Fan secondary" value={`${eva1.fan_sec_rpm}`} pct={(eva1.fan_sec_rpm / 40000) * 100} fillColor={dim} />
-          <MiniBar icon={<IconScrubber color={blueDim} />} label="Scrubber A" value={`${eva1.scrubber_a_co2_storage}%`} pct={eva1.scrubber_a_co2_storage} fillColor={dim} />
-          <MiniBar icon={<IconScrubber color={blueDim} />} label="Scrubber B" value={`${eva1.scrubber_b_co2_storage}%`} pct={eva1.scrubber_b_co2_storage} fillColor={dim} />
+          <MiniBar icon={<IconFan color={blue} />} label="Fan primary" value={`${(eva1.fan_pri_rpm / 1000).toFixed(0)}k`} pct={(eva1.fan_pri_rpm / 40000) * 100} fillColor={blue} />
+          <MiniBar icon={<IconFan color={blue} />} label="Fan secondary" value={`${eva1.fan_sec_rpm.toFixed(0)}`} pct={(eva1.fan_sec_rpm / 40000) * 100} fillColor={blue} />
+          <MiniBar icon={<IconScrubber color={blueDim} />} label="Scrubber A" value={`${eva1.scrubber_a_co2_storage.toFixed(0)}%`} pct={eva1.scrubber_a_co2_storage} fillColor={blue} />
+          <MiniBar icon={<IconScrubber color={blueDim} />} label="Scrubber B" value={`${eva1.scrubber_b_co2_storage.toFixed(0)}%`} pct={eva1.scrubber_b_co2_storage} fillColor={blue} />
         </div>
 
         <Divider />
 
         <div>
           <SectionLabel>Biometrics</SectionLabel>
-          <MiniBar icon={<IconHeartRate />} label="Heart rate" value={`${eva1.heart_rate} bpm`} pct={(eva1.heart_rate / 200) * 100} fillColor="#7a4a7a" />
-          <MiniBar icon={<IconConsump />} label="O₂ consump" value={`${eva1.oxy_consumption}`} pct={(eva1.oxy_consumption / 10) * 100} fillColor={dim} />
-          <MiniBar icon={<IconCO2Out />} label="CO₂ prod" value={`${eva1.co2_production}`} pct={(eva1.co2_production / 10) * 100} fillColor={dim} />
+          <MiniBar icon={<IconHeartRate color={blue} />} label="Heart rate" value={`${eva1.heart_rate.toFixed(0)} bpm`} pct={(eva1.heart_rate / 200) * 100} fillColor={blue} />
+          <MiniBar icon={<IconConsump color={blue} />} label="O₂ consump" value={`${eva1.oxy_consumption.toFixed(2)}`} pct={(eva1.oxy_consumption / 10) * 100} fillColor={blue} />
+          <MiniBar icon={<IconCO2Out color={blue} />} label="CO₂ prod" value={`${eva1.co2_production.toFixed(2)}`} pct={(eva1.co2_production / 10) * 100} fillColor={blue} />
         </div>
       </Col>
 
       {/* ── EVA-2 column ───────────────────────────────────────────── */}
       <Col>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 9, letterSpacing: 3, color: '#2e3050', textTransform: 'uppercase' }}>Suit telemetry</span>
-          <span style={{ fontSize: 11, fontWeight: 500, color: green }}>EVA-2</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 9, letterSpacing: 3, color: green, textTransform: 'uppercase' }}>Suit telemetry</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: '#d8fff0', textShadow: '0 0 12px rgba(56,189,248,0.18)' }}>EVA-2</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12 }}>
-          <SpaceSuit variant="eva2" />
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <GaugeRow icon={<IconBattery color={green} />} label="Battery" value={`${eva2.battery_level}%`} pct={eva2.battery_level} fillColor={green} />
-            <GaugeRow icon={<IconDroplet color={danger} />} label="Coolant storage" value={`${eva2.coolant_storage}%`} pct={eva2.coolant_storage} fillColor={danger} valueColor={danger} />
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+          <div style={{ width: 90, flexShrink: 0, borderRadius: 18, padding: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(52,211,147,0.08)', border: '1px solid rgba(52,211,147,0.22)', boxShadow: '0 0 20px rgba(52,211,147,0.14)' }}>
+            <img src={astronaut} alt="EVA-2 astronaut" style={{ width: 72, objectFit: 'contain', filter: 'drop-shadow(0 0 14px rgba(52,211,147,0.45))' }} />
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <GaugeRow icon={<IconBattery color={green} />} label="Primary battery" value={`${eva2.battery_level.toFixed(0)}%`} pct={eva2.battery_level} fillColor={green} />
+            <GaugeRow icon={<IconBattery color={greenDim} />} label="Secondary battery" value={`${eva2.battery_level.toFixed(0)}%`} pct={eva2.battery_level} fillColor={green} />
             <GaugeRow icon={<IconTemp color={green} />} label="Suit temp" value={`${eva2.temperature.toFixed(1)}°F`} pct={(eva2.temperature / 50) * 100} fillColor={green} />
+            <ImuBox
+              label="EVA-2 IMU"
+              labelColor={green}
+              x={imu.eva2.posx}
+              y={imu.eva2.posy}
+              heading={imu.eva2.heading}
+            />
           </div>
         </div>
 
         <Divider />
 
         <div>
-          <SectionLabel>Oxygen</SectionLabel>
-          <MiniBar icon={<IconO2 color={green} />} label="Pri storage" value={`${eva2.oxy_pri_storage}%`} pct={eva2.oxy_pri_storage} fillColor={green} valueColor={green} />
-          <MiniBar icon={<IconO2 color={greenDim} />} label="Sec storage" value={`${eva2.oxy_sec_storage}%`} pct={eva2.oxy_sec_storage} fillColor={green} valueColor={green} />
-          <MiniBar icon={<IconPressure color={greenDim} />} label="Pri pressure" value={`${eva2.oxy_pri_pressure} PSI`} pct={(eva2.oxy_pri_pressure / 1000) * 100} fillColor={dim} />
-          <MiniBar icon={<IconPressure color={greenDim} />} label="Sec pressure" value={`${eva2.oxy_sec_pressure} PSI`} pct={(eva2.oxy_sec_pressure / 1000) * 100} fillColor={dim} />
-          <MiniBar icon={<IconSuitPressure color={greenDim} />} label="Suit O₂ ps" value={`${eva2.suit_pressure_oxy} PSI`} pct={(eva2.suit_pressure_oxy / 5) * 100} fillColor={green} valueColor={green} />
-          <MiniBar icon={<IconCO2Out color={warn} />} label="Suit CO₂" value={`${eva2.suit_pressure_co2.toFixed(2)}`} pct={(eva2.suit_pressure_co2 / 0.5) * 100} fillColor={warn} valueColor={warn} />
+          <SectionLabel color={green}>Oxygen</SectionLabel>
+          <MiniBar icon={<IconO2 color={green} />} label="Pri storage" value={`${eva2.oxy_pri_storage.toFixed(0)}%`} pct={eva2.oxy_pri_storage} fillColor={green} />
+          <MiniBar icon={<IconO2 color={greenDim} />} label="Sec storage" value={`${eva2.oxy_sec_storage.toFixed(0)}%`} pct={eva2.oxy_sec_storage} fillColor={green} />
+          <MiniBar icon={<IconPressure color={greenDim} />} label="Pri pressure" value={`${eva2.oxy_pri_pressure.toFixed(1)} PSI`} pct={(eva2.oxy_pri_pressure / 1000) * 100} fillColor={green} />
+          <MiniBar icon={<IconPressure color={greenDim} />} label="Sec pressure" value={`${eva2.oxy_sec_pressure.toFixed(1)} PSI`} pct={(eva2.oxy_sec_pressure / 1000) * 100} fillColor={green} />
+          <MiniBar icon={<IconSuitPressure color={greenDim} />} label="Suit O₂ ps" value={`${eva2.suit_pressure_oxy.toFixed(1)} PSI`} pct={(eva2.suit_pressure_oxy / 5) * 100} fillColor={green} />
         </div>
 
         <Divider />
 
         <div>
-          <SectionLabel>Coolant</SectionLabel>
-          <MiniBar icon={<IconDroplet color={danger} />} label="Storage" value={`${eva2.coolant_storage}%`} pct={eva2.coolant_storage} fillColor={danger} valueColor={danger} />
-          <MiniBar icon={<IconWave color={green} />} label="Liquid ps" value={`${eva2.coolant_liquid_pressure}`} pct={(eva2.coolant_liquid_pressure / 600) * 100} fillColor={green} valueColor={green} />
-          <MiniBar icon={<IconDroplet color={dim} />} label="Gas ps" value={`${eva2.coolant_gas_pressure}`} pct={(eva2.coolant_gas_pressure / 100) * 100} fillColor={dim} />
+          <SectionLabel color={green}>Coolant</SectionLabel>
+          <MiniBar icon={<IconDroplet color={green} />} label="Storage" value={`${eva2.coolant_storage.toFixed(0)}%`} pct={eva2.coolant_storage} fillColor={green} />
+          <MiniBar icon={<IconWave color={green} />} label="Liquid ps" value={`${eva2.coolant_liquid_pressure.toFixed(1)}`} pct={(eva2.coolant_liquid_pressure / 600) * 100} fillColor={green} />
+          <MiniBar icon={<IconDroplet color={green} />} label="Gas ps" value={`${eva2.coolant_gas_pressure.toFixed(1)}`} pct={(eva2.coolant_gas_pressure / 100) * 100} fillColor={green} />
         </div>
 
         <Divider />
 
         <div>
-          <SectionLabel>Fans &amp; Scrubbers</SectionLabel>
-          <MiniBar icon={<IconFan color={danger} />} label="Fan primary" value={`${eva2.fan_pri_rpm} rpm`} pct={(eva2.fan_pri_rpm / 40000) * 100} fillColor={danger} valueColor={danger} />
-          <MiniBar icon={<IconFan color={dim} />} label="Fan secondary" value={`${eva2.fan_sec_rpm}`} pct={(eva2.fan_sec_rpm / 40000) * 100} fillColor={dim} />
-          <MiniBar icon={<IconScrubber color={warn} />} label="Scrubber A" value={`${eva2.scrubber_a_co2_storage}%`} pct={eva2.scrubber_a_co2_storage} fillColor={warn} valueColor={warn} />
-          <MiniBar icon={<IconScrubber color={warn} />} label="Scrubber B" value={`${eva2.scrubber_b_co2_storage}%`} pct={eva2.scrubber_b_co2_storage} fillColor={warn} valueColor={warn} />
+          <SectionLabel color={green}>Fans &amp; Scrubbers</SectionLabel>
+          <MiniBar icon={<IconFan color={green} />} label="Fan primary" value={`${(eva2.fan_pri_rpm / 1000).toFixed(0)}k`} pct={(eva2.fan_pri_rpm / 40000) * 100} fillColor={green} />
+          <MiniBar icon={<IconFan color={green} />} label="Fan secondary" value={`${eva2.fan_sec_rpm.toFixed(0)}`} pct={(eva2.fan_sec_rpm / 40000) * 100} fillColor={green} />
+          <MiniBar icon={<IconScrubber color={greenDim} />} label="Scrubber A" value={`${eva2.scrubber_a_co2_storage.toFixed(0)}%`} pct={eva2.scrubber_a_co2_storage} fillColor={green} />
+          <MiniBar icon={<IconScrubber color={greenDim} />} label="Scrubber B" value={`${eva2.scrubber_b_co2_storage.toFixed(0)}%`} pct={eva2.scrubber_b_co2_storage} fillColor={green} />
         </div>
 
         <Divider />
 
         <div>
-          <SectionLabel>Biometrics</SectionLabel>
-          <MiniBar icon={<IconHeartRate />} label="Heart rate" value={`${eva2.heart_rate} bpm`} pct={(eva2.heart_rate / 200) * 100} fillColor="#7a4a7a" />
-          <MiniBar icon={<IconConsump />} label="O₂ consump" value={`${eva2.oxy_consumption}`} pct={(eva2.oxy_consumption / 10) * 100} fillColor={dim} />
-          <MiniBar icon={<IconCO2Out />} label="CO₂ prod" value={`${eva2.co2_production}`} pct={(eva2.co2_production / 10) * 100} fillColor={dim} />
+          <SectionLabel color={green}>Biometrics</SectionLabel>
+          <MiniBar icon={<IconHeartRate color={green} />} label="Heart rate" value={`${eva2.heart_rate.toFixed(0)} bpm`} pct={(eva2.heart_rate / 200) * 100} fillColor={green} />
+          <MiniBar icon={<IconConsump color={green} />} label="O₂ consump" value={`${eva2.oxy_consumption.toFixed(2)}`} pct={(eva2.oxy_consumption / 10) * 100} fillColor={green} />
+          <MiniBar icon={<IconCO2Out color={green} />} label="CO₂ prod" value={`${eva2.co2_production.toFixed(2)}`} pct={(eva2.co2_production / 10) * 100} fillColor={green} />
         </div>
       </Col>
 
       {/* ── Systems column ─────────────────────────────────────────── */}
       <Col style={{ borderLeft: '1px solid #0e0f1c' }}>
-        <div style={{ fontSize: 9, letterSpacing: 3, color: '#2e3050', textTransform: 'uppercase' }}>
+        <div style={{ fontSize: 9, letterSpacing: 3, color: '#8890b8', textTransform: 'uppercase' }}>
           Systems &amp; Control
         </div>
 
@@ -666,22 +752,20 @@ const dim = '#4B5275'
             <Toggle label="SCRUB" on={!error.scrubber_error} />
           </div>
         </div>
-
-        <div>
-          <SectionLabel>IMU Position</SectionLabel>
-          <ImuBox label="EVA-1" labelColor="#2a3a6a" x={imu.eva1.posx} y={imu.eva1.posy} heading={imu.eva1.heading} />
-          <ImuBox label="EVA-2" labelColor="#1a3a2a" x={imu.eva2.posx} y={imu.eva2.posy} heading={imu.eva2.heading} />
-        </div>
       </Col>
 
       {/* ── Alerts + Tasks column ──────────────────────────────────── */}
       <Col style={{ borderLeft: '1px solid #0e0f1c' }}>
-        <div style={{ fontSize: 9, letterSpacing: 3, color: '#2e3050', textTransform: 'uppercase' }}>
+        <div style={{
+          fontSize: 9, letterSpacing: 3, color: '#7dd3fc', textTransform: 'uppercase',
+          background: 'rgba(56,189,248,0.07)', padding: '10px 12px', borderRadius: 8,
+          border: '1px solid rgba(56,189,248,0.16)',
+        }}>
           Caution &amp; Tasks
         </div>
 
         <div>
-          <SectionLabel color="#6a2a2a">Active alerts</SectionLabel>
+          <SectionLabel color="#38bdf8">Active alerts</SectionLabel>
           <AlertCard title="EVA-2 coolant critical" sub="Storage at 0% — immediate action" level="danger" />
           <AlertCard title="EVA-2 fan offline" sub="Primary fan RPM = 0" level="warn" />
           <AlertCard title="EVA-2 DCU standby" sub="All switches off — verify checklist" level="warn" />
@@ -692,14 +776,14 @@ const dim = '#4B5275'
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <SectionLabel>Mission tasks</SectionLabel>
-            <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: '#2e3050' }}>2 / 4</span>
+            <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: '#e2e8f0' }}>2 / 4</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            <div style={{ flex: 1, height: 2, background: '#0d0e1a', borderRadius: 2, overflow: 'hidden' }}>
-              <div style={{ width: '65%', height: '100%', background: '#3a3a6a', borderRadius: 2 }} />
+            <div style={{ flex: 1, height: 2, background: '#0f172a', borderRadius: 2, overflow: 'hidden' }}>
+              <div style={{ width: '65%', height: '100%', background: '#38bdf8', borderRadius: 2, boxShadow: '0 0 10px rgba(56,189,248,0.35)' }} />
             </div>
-            <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: '#3a3a6a' }}>65%</span>
+            <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: '#e2e8f0' }}>65%</span>
           </div>
 
           <TaskItem status="complete" name="Pre-EVA suit check" pct={100} />
@@ -708,10 +792,11 @@ const dim = '#4B5275'
           <TaskItem status="upcoming" name="Return to airlock" sub="Zone B → Airlock Alpha" pct={0} />
 
           <button style={{
-            marginTop: 12, width: '100%', background: 'transparent',
-            border: '1px solid #14152a', borderRadius: 5,
-            color: '#2e3050', padding: 8, fontSize: 10,
+            marginTop: 12, width: '100%', background: '#0f172a',
+            border: '1px solid rgba(56,189,248,0.24)', borderRadius: 5,
+            color: '#e2e8f0', padding: 8, fontSize: 10,
             letterSpacing: 2, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
+            boxShadow: '0 2px 8px rgba(56,189,248,0.12)',
           }}>
             + new task
           </button>
