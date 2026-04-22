@@ -13,7 +13,7 @@ CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading", logger=True, engineio_logger=True)
 
 #tss
-TSS_UDP_HOST = "172.22.87.131"
+TSS_UDP_HOST = "172.21.220.116"
 
 udp_client = TSSUdpClient(TSS_UDP_HOST)
 
@@ -24,8 +24,14 @@ ai_inbound_raw: str = ""
 
 waypoints_stored: list[tuple[int, float, float, bool]] = []
 
-# Latest "matrix" payload from clients (2D int array); updated on each emit.
-matrix_stored: list[list[int]] = []
+# Latest "matrix" payload from clients.
+matrix_stored: dict = {
+    "data": [[]],
+    "topleft": {"x": 0, "y": 0},
+}
+
+# Latest "task" payload from clients (5-box 1D list of strings).
+task_stored: list[str] = ["", "", "", "", ""]
 
 
 def fetch_loop():
@@ -85,6 +91,24 @@ def handle_disconnect():
 def handle_matrix(data):
     global matrix_stored
     matrix_stored = data
+
+
+@socketio.on("task")
+def handle_task(*data):
+    global task_stored
+
+    # Some clients send task as one JSON array argument, others as 5 separate args.
+    if len(data) == 1 and isinstance(data[0], list):
+        incoming = data[0]
+    else:
+        incoming = list(data)
+
+    normalized = ["", "", "", "", ""]
+    for i, value in enumerate(incoming[:5]):
+        normalized[i] = "" if value is None else str(value)
+
+    task_stored = normalized
+    print(f"Task received: {json.dumps(task_stored)}")
 
 
 @socketio.on("rover-throttle")
