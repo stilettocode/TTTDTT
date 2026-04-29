@@ -1,10 +1,12 @@
 // pages/Rover.tsx
+import { useRef, useState } from 'react'
 import { useSocket } from '../context/SocketContext'
 
 const YOUTUBE_LIVE_ID = 'm3kR2KK8TEs'
 
 const BAR_H = 200
 const OVERLAP = 40
+const TEST_VOICE_STRING = 'Test voice string'
 
 // ── Telemetry display helpers ────────────────────────────────────
 function TelemetryItem({ label, value, unit, warn }: {
@@ -45,13 +47,74 @@ function TelemetryRow({ children }: { children: React.ReactNode }) {
 
 // ── Page ─────────────────────────────────────────────────────────
 export default function RoverPage() {
-  const { roverData, ltvData } = useSocket() as { roverData: any; ltvData: any }
+  const { roverData, ltvData, sendVoiceString } = useSocket() as {
+    roverData: any
+    ltvData: any
+    sendVoiceString: (voiceString: string) => void
+  }
+  const [isRecording, setIsRecording] = useState(false)
+  const recognitionRef = useRef<any>(null)
+  const transcriptRef = useRef('')
+  const shouldSendVoiceRef = useRef(false)
 
   const pr = roverData?.pr_telemetry
   const ltv = ltvData
 
   const fmt = (v: number | undefined, dec = 1) =>
     v != null ? v.toFixed(dec) : '—'
+
+  const handleVoiceClick = () => {
+    if (isRecording) {
+      shouldSendVoiceRef.current = true
+      recognitionRef.current?.stop()
+      setIsRecording(false)
+      return
+    }
+
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+
+    if (!SpeechRecognition) {
+      sendVoiceString(TEST_VOICE_STRING)
+      return
+    }
+
+    transcriptRef.current = ''
+    shouldSendVoiceRef.current = false
+
+    const recognition = new SpeechRecognition()
+    recognition.continuous = true
+    recognition.interimResults = true
+    recognition.lang = 'en-US'
+    recognition.onresult = (event: any) => {
+      let transcript = ''
+      for (let i = 0; i < event.results.length; i += 1) {
+        transcript += event.results[i][0].transcript
+      }
+      transcriptRef.current = transcript
+    }
+    recognition.onend = () => {
+      if (shouldSendVoiceRef.current) {
+        const voiceString = transcriptRef.current.trim() || TEST_VOICE_STRING
+        sendVoiceString(voiceString)
+      }
+      shouldSendVoiceRef.current = false
+      recognitionRef.current = null
+      setIsRecording(false)
+    }
+    recognition.onerror = () => {
+      transcriptRef.current = TEST_VOICE_STRING
+      shouldSendVoiceRef.current = true
+    }
+
+    recognitionRef.current = recognition
+    try {
+      recognition.start()
+      setIsRecording(true)
+    } catch {
+      sendVoiceString(TEST_VOICE_STRING)
+    }
+  }
 
   return (
     <div style={styles.root}>
@@ -113,6 +176,17 @@ export default function RoverPage() {
         />
         <TelemetryItem label="PING"   value={ltv?.signal?.ping_requested ?? '—'} />
         <TelemetryItem label="PING ∞" value={ltv?.signal?.ping_unlimited_requested ?? '—'} />
+
+        <button
+          type="button"
+          onClick={handleVoiceClick}
+          style={{
+            ...styles.voiceButton,
+            ...(isRecording ? styles.voiceButtonRecording : {}),
+          }}
+        >
+          {isRecording ? 'STOP VOICE' : 'REC VOICE'}
+        </button>
 
       </footer>
 
@@ -192,6 +266,27 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 16,
     boxShadow: '0 -1px 0 rgba(56,189,248,0.08)',
     overflowX: 'auto',
+  },
+
+  voiceButton: {
+    flexShrink: 0,
+    background: 'rgba(56, 189, 248, 0.12)',
+    border: '1px solid rgba(56, 189, 248, 0.45)',
+    borderRadius: 6,
+    color: '#e2e8f0',
+    cursor: 'pointer',
+    fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+    fontSize: 12,
+    fontWeight: 700,
+    letterSpacing: '0.12em',
+    padding: '10px 14px',
+    textTransform: 'uppercase',
+  },
+
+  voiceButtonRecording: {
+    background: 'rgba(248, 113, 113, 0.16)',
+    borderColor: 'rgba(248, 113, 113, 0.65)',
+    color: '#fecaca',
   },
 }
 

@@ -69,6 +69,13 @@ def handle_disconnect():
     print(f"Client disconnected: {request.sid}")
 
 
+@socketio.on("voiceString")
+def handle_voice_string(data):
+    voice_string = str(data)
+    print(f"Voice string received: {voice_string}")
+    socketio.emit("voiceString", voice_string)
+
+
 @app.route("/", methods=["GET", "POST"])
 def root():
     return "ok"

@@ -8,6 +8,7 @@ interface SocketContextType {
   evaData: EvaData | null
   ltvData: LtvData | null
   ltvErrorsData: LtvErrorsData | null
+  sendVoiceString: (voiceString: string) => void
 }
 
 const SocketContext = createContext<SocketContextType | null>(null)
@@ -36,8 +37,12 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     return () => { socket.disconnect() }
   }, [])
 
+  const sendVoiceString = (voiceString: string) => {
+    socketRef.current?.emit('voiceString', voiceString)
+  }
+
   return (
-    <SocketContext.Provider value={{ roverData, evaData, ltvData, ltvErrorsData }}>
+    <SocketContext.Provider value={{ roverData, evaData, ltvData, ltvErrorsData, sendVoiceString }}>
       {children}
     </SocketContext.Provider>
   )
