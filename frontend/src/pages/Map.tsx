@@ -1,5 +1,4 @@
 // pages/Map.tsx
-import { useSocket } from '../context/SocketContext'
 //import { useState, useRef } from 'react'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 import mapImage from '../assets/dust-map.png'
@@ -9,8 +8,6 @@ const IMAGE_WIDTH = 2452
 const IMAGE_HEIGHT = 1551
 
 export default function MapPage() {
-  const { roverData } = useSocket()
-
   const scaleX = window.innerWidth / IMAGE_WIDTH
   const scaleY = window.innerHeight / IMAGE_HEIGHT
   const fitScale = Math.min(scaleX, scaleY)

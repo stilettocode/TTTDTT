@@ -14,11 +14,14 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading", logge
 
 
 #tss
-TSS_UDP_HOST = "172.24.149.156"
+TSS_UDP_HOST = "172.22.40.21"
 
 udp_client = TSSUdpClient(TSS_UDP_HOST)
 
 is_running = True
+
+# Latest metric warning alerts received from Socket.IO clients.
+metric_warnings_stored: list[dict] = []
 
 
 def fetch_loop():
@@ -62,6 +65,8 @@ def fetch_loop():
 @socketio.on("connect")
 def handle_connect():
     print(f"Client connected: {request.sid}")
+    if metric_warnings_stored:
+        emit("metric-warning", metric_warnings_stored)
 
 
 @socketio.on("disconnect")
@@ -74,6 +79,31 @@ def handle_voice_string(data):
     voice_string = str(data)
     print(f"Voice string received: {voice_string}")
     socketio.emit("voiceString", voice_string)
+
+
+@socketio.on("metric-warning")
+def handle_metric_warning(data):
+    global metric_warnings_stored
+
+    alerts = data if isinstance(data, list) else [data]
+    timestamped_alerts = []
+    for alert in alerts:
+        if not isinstance(alert, dict):
+            print(f"Ignoring invalid metric-warning payload: {alert}")
+            continue
+
+        normalized_alert = {
+            **alert,
+            "local_timestamp": alert.get("local_timestamp", datetime.now().isoformat()),
+        }
+        timestamped_alerts.append(normalized_alert)
+
+    if not timestamped_alerts:
+        return
+
+    metric_warnings_stored = (timestamped_alerts + metric_warnings_stored)[:5]
+    print(f"Metric warning received: {json.dumps(timestamped_alerts)}")
+    socketio.emit("metric-warning", timestamped_alerts)
 
 
 @app.route("/", methods=["GET", "POST"])

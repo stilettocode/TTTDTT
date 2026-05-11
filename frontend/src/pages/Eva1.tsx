@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { useSocket } from '../context/SocketContext'
 import astronaut from '../assets/astronaut.png'
 
@@ -48,7 +48,7 @@ interface AlertItem {
   id: string
   title: string
   sub: string
-  level: 'danger' | 'warn'
+  level: 'danger' | 'warn' | 'predictive'
   ts: number
 }
 
@@ -301,13 +301,21 @@ const Toggle = ({ label, on }: ToggleProps) => (
 
 
 
-interface AlertCardProps { title: string; sub: string; level?: 'danger' | 'warn' }
-const AlertCard = ({ title, sub, level = 'danger' }: AlertCardProps) => (
-  <div style={{ background: level === 'danger' ? 'rgba(248,113,113,0.15)' : 'rgba(250,204,21,0.13)', border: `1px solid ${level === 'danger' ? 'rgba(248,113,113,0.4)' : 'rgba(250,204,21,0.35)'}`, borderLeft: `3px solid ${level === 'danger' ? '#f87171' : '#fde047'}`, borderRadius: 6, padding: '8px 10px', marginBottom: 6 }}>
-  <div style={{ fontSize: 11, color: level === 'danger' ? '#fecaca' : '#fef9c3', fontWeight: 600, marginBottom: 2 }}>{title}</div>
+interface AlertCardProps { title: string; sub: string; level?: 'danger' | 'warn' | 'predictive' }
+const AlertCard = ({ title, sub, level = 'danger' }: AlertCardProps) => {
+  const isDanger = level === 'danger'
+  const isPredictive = level === 'predictive'
+  const background = isDanger ? 'rgba(248,113,113,0.15)' : isPredictive ? 'rgba(249,115,22,0.14)' : 'rgba(250,204,21,0.13)'
+  const border = isDanger ? 'rgba(248,113,113,0.4)' : isPredictive ? 'rgba(249,115,22,0.38)' : 'rgba(250,204,21,0.35)'
+  const accent = isDanger ? '#f87171' : isPredictive ? '#fb923c' : '#fde047'
+  const titleColor = isDanger ? '#fecaca' : isPredictive ? '#fed7aa' : '#fef9c3'
+
+  return (
+  <div style={{ background, border: `1px solid ${border}`, borderLeft: `3px solid ${accent}`, borderRadius: 6, padding: '8px 10px', marginBottom: 6 }}>
+  <div style={{ fontSize: 11, color: titleColor, fontWeight: 600, marginBottom: 2 }}>{title}</div>
   <div style={{ fontSize: 10, color: '#94a3b8', lineHeight: 1.4 }}>{sub}</div>
 </div>
-)
+)}
 
 interface TaskItemProps { status: 'complete' | 'active' | 'upcoming'; name: string; pct?: number }
 const TaskItem = ({ status, name, pct = 0 }: TaskItemProps) => {
@@ -448,7 +456,7 @@ const TelemetryCol = (p: TelemetryColProps) => {
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════════════════
 export default function Eva1Page() {
-  const { evaData } = useSocket()
+  const { evaData, metricWarnings } = useSocket()
 
   const defaultEva1 = {
     primary_battery_level: 0, secondary_battery_level: 0,
@@ -557,28 +565,29 @@ export default function Eva1Page() {
     eva1: { posx: evaData?.imu?.eva1?.posx ?? 0, posy: evaData?.imu?.eva1?.posy ?? 0, heading: evaData?.imu?.eva1?.heading ?? 0 },
     eva2: { posx: evaData?.imu?.eva2?.posx ?? 0, posy: evaData?.imu?.eva2?.posy ?? 0, heading: evaData?.imu?.eva2?.heading ?? 0 },
   }
-  const error = {
-    fan_error: evaData?.error?.fan_error ?? false,
-    oxy_error: evaData?.error?.oxy_error ?? false,
-    power_error: evaData?.error?.power_error ?? false,
-    scrubber_error: evaData?.error?.scrubber_error ?? false,
-  }
-
   const blue = '#38BDF8', blueDim = '#0EA5E9'
   const purple = '#C084FC', purpleDim = '#A855F7'
+
+  const metricWarningAlerts: AlertItem[] = metricWarnings.map((alert, index) => {
+    const severity = alert.severity.toUpperCase()
+    const timestamp = Date.parse(alert.local_timestamp ?? '')
+
+    return {
+      id: alert.id ?? `metric-warning-${alert.valuename}-${alert.local_timestamp ?? index}`,
+      title: alert.notes || alert.message,
+      sub: alert.message,
+      level: severity === 'WARNING' ? 'danger' : 'predictive',
+      ts: Number.isNaN(timestamp) ? Date.now() - index : timestamp,
+    }
+  })
+  const displayedAlerts = [...metricWarningAlerts, ...alerts]
+    .sort((a, b) => b.ts - a.ts)
+    .slice(0, 5)
 
   const formatTime = (s: number) => {
     const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60)
     return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`
   }
-
-  // Task display: completed = first filled slots, active = next, rest upcoming
-  const taskStatuses: Array<'complete' | 'active' | 'upcoming'> = tasks.map((t, i) => {
-    if (!t) return 'upcoming'
-    // Heuristic: tasks before current active are complete, current is active, rest upcoming
-    // In a real app you'd get this from the backend; here we just show all as upcoming if populated
-    return 'upcoming'
-  })
 
   return (
     <div style={{ display: 'grid', width: '100vw', height: '100vh', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr)', gridTemplateRows: 'auto 1fr', background: '#060e1a', color: '#e2e8f0', fontFamily: "'DM Sans', sans-serif", fontSize: 13, overflow: 'hidden', boxSizing: 'border-box' }}>
@@ -701,18 +710,18 @@ export default function Eva1Page() {
         <div style={{ flex: 1, minHeight: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6, borderBottom: '1px solid rgba(56,189,248,0.12)', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
             <div style={{ fontSize: 9, letterSpacing: 3, color: '#7dd3fc', textTransform: 'uppercase' }}>⚠ Active Alerts</div>
-            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, background: alerts.length > 0 ? 'rgba(248,113,113,0.2)' : 'rgba(34,197,94,0.15)', color: alerts.length > 0 ? '#fca5a5' : '#86efac', borderRadius: 10, padding: '1px 8px', border: `1px solid ${alerts.length > 0 ? 'rgba(248,113,113,0.35)' : 'rgba(34,197,94,0.3)'}` }}>
-              {alerts.length} active
+            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, background: displayedAlerts.length > 0 ? 'rgba(248,113,113,0.2)' : 'rgba(34,197,94,0.15)', color: displayedAlerts.length > 0 ? '#fca5a5' : '#86efac', borderRadius: 10, padding: '1px 8px', border: `1px solid ${displayedAlerts.length > 0 ? 'rgba(248,113,113,0.35)' : 'rgba(34,197,94,0.3)'}` }}>
+              {displayedAlerts.length} active
             </div>
           </div>
           <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-            {alerts.length === 0 ? (
+            {displayedAlerts.length === 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 8, opacity: 0.4 }}>
                 <div style={{ fontSize: 22 }}>✓</div>
                 <div style={{ fontSize: 10, letterSpacing: 2, color: '#4ade80', textTransform: 'uppercase' }}>All nominal</div>
               </div>
             ) : (
-              alerts.map(a => <AlertCard key={a.id} title={a.title} sub={a.sub} level={a.level} />)
+              displayedAlerts.map(a => <AlertCard key={a.id} title={a.title} sub={a.sub} level={a.level} />)
             )}
           </div>
         </div>
