@@ -19,7 +19,6 @@ export default function MapPage() {
     <div style={{ display: 'flex', width: '100vw', height: '100vh' }}>
 
       {/* Left Panel */}
-      <LeftPanel />
 
       {/* Map - takes up remaining space */}
       <div style={{ flex: 1, overflow: 'hidden' }}>
