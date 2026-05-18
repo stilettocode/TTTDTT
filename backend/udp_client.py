@@ -56,6 +56,8 @@ class TSSUdpClient:
         raw = self._send_packet(3)
         return json.loads(raw.decode("utf-8"))
 
+        # rover commands begin here
+
     def set_brakes(self, engaged: bool) -> Dict[str, Any]:
         # command 1107: brakes, float: 0.0 or 1.0.
         value = 1.0 if engaged else 0.0

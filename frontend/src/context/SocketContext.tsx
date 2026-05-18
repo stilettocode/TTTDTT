@@ -1,7 +1,7 @@
 // context/SocketContext.tsx
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
-import type { RoverData, EvaData, LtvData, LtvErrorsData, MetricWarningAlert } from '../types'
+import type { RoverData, EvaData, LtvData, LtvErrorsData, MetricWarningAlert, MatrixUpdate } from '../types'
 
 interface SocketContextType {
   roverData: RoverData | null
@@ -9,6 +9,7 @@ interface SocketContextType {
   ltvData: LtvData | null
   ltvErrorsData: LtvErrorsData | null
   metricWarnings: MetricWarningAlert[]
+  matrixUpdate: MatrixUpdate | null
   sendVoiceString: (voiceString: string) => void
 }
 
@@ -20,6 +21,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [ltvData, setLtvData] = useState<LtvData | null>(null)
   const [ltvErrorsData, setLtvErrorsData] = useState<LtvErrorsData | null>(null)
   const [metricWarnings, setMetricWarnings] = useState<MetricWarningAlert[]>([])
+  const [matrixUpdate, setMatrixUpdate] = useState<MatrixUpdate | null>(null)
   const socketRef = useRef<Socket | null>(null)
 
   useEffect(() => {
@@ -34,6 +36,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     socket.on('eva-telemetry', (data: EvaData) => setEvaData(data))
     socket.on('ltv-telemetry', (data: LtvData) => setLtvData(data))
     socket.on('ltv-errors-telemetry', (data: LtvErrorsData) => setLtvErrorsData(data))
+    socket.on('matrix-update', (data: MatrixUpdate) => setMatrixUpdate(data))
     socket.on('metric-warning', (data: MetricWarningAlert | MetricWarningAlert[]) => {
       const incoming = Array.isArray(data) ? data : [data]
       const timestamped = incoming.map((alert) => ({
@@ -54,7 +57,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SocketContext.Provider value={{ roverData, evaData, ltvData, ltvErrorsData, metricWarnings, sendVoiceString }}>
+    <SocketContext.Provider value={{ roverData, evaData, ltvData, ltvErrorsData, metricWarnings, matrixUpdate, sendVoiceString }}>
       {children}
     </SocketContext.Provider>
   )

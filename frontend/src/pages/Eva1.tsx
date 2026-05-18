@@ -541,12 +541,12 @@ export default function Eva1Page() {
       batt: { lu: evaData?.dcu?.eva1?.batt?.lu ?? false, ps: evaData?.dcu?.eva1?.batt?.ps ?? false },
     },
     eva2: {
-      batt: evaData?.dcu?.eva2?.batt ?? false,
-      oxy: evaData?.dcu?.eva2?.oxy ?? false,
-      comm: evaData?.dcu?.eva2?.comm ?? false,
-      fan: evaData?.dcu?.eva2?.fan ?? false,
-      pump: evaData?.dcu?.eva2?.pump ?? false,
-      co2: evaData?.dcu?.eva2?.co2 ?? false,
+      batt: true,
+      oxy: true,
+      comm: true,
+      fan: true,
+      pump: true,
+      co2: true,
     },
   }
   const uia = {
