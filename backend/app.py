@@ -29,7 +29,7 @@ task_stored: list[str] = ["", "", "", "", ""]
 
 # Latest metric warning alerts received from Socket.IO clients.
 metric_warnings_stored: list[dict] = []
-latest_matrix_update: dict | None = None
+latest_matrix_update: list[list] | None = None
 
 
 def _extract_command_value(data, keys=("value",), default=None):
@@ -262,32 +262,11 @@ def handle_metric_warning(data):
 def handle_matrix_update(data):
     global latest_matrix_update
 
-    if not isinstance(data, dict):
-        emit("error", {"error": "matrix-update payload must be an object"})
+    if not isinstance(data, list) or not all(isinstance(row, list) for row in data):
+        emit("error", {"error": "matrix-update payload must be a 2D matrix array"})
         return
 
-    matrix = data.get("data")
-    top_left = data.get("topleft")
-    if not isinstance(matrix, list) or not all(isinstance(row, list) for row in matrix):
-        emit("error", {"error": "matrix-update data must be a matrix array"})
-        return
-
-    if (
-        not isinstance(top_left, dict)
-        or not isinstance(top_left.get("x"), (int, float))
-        or not isinstance(top_left.get("y"), (int, float))
-    ):
-        emit("error", {"error": "matrix-update topleft must include numeric x and y"})
-        return
-
-    latest_matrix_update = {
-        "data": matrix,
-        "topleft": {
-            "x": top_left["x"],
-            "y": top_left["y"],
-        },
-        "local_timestamp": data.get("local_timestamp", datetime.now().isoformat()),
-    }
+    latest_matrix_update = data
     print(f"Matrix update received: {json.dumps(latest_matrix_update)}")
     socketio.emit("matrix-update", latest_matrix_update)
 

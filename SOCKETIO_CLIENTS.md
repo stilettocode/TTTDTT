@@ -97,7 +97,7 @@ Read **NASA’s TSS** docs for full JSON field meanings
 
 `metric-warning` | Latest warning alert object/list + `local_timestamp`; also sent on connect if stored  
 
-`matrix-update` | Latest matrix update object; also sent on connect if stored  
+`matrix-update` | Latest 2D matrix array; also sent on connect if stored  
 
 `voiceString` | Echoed voice string  
 
@@ -109,13 +109,10 @@ Read **NASA’s TSS** docs for full JSON field meanings
 
 `error` | `{"error": str, "local_timestamp": str}`  
 
-`matrix-update` is the 2D matrix update for navigation/display on the frontend. Shape:
+`matrix-update` is the 2D matrix for navigation/display on the frontend. It is stretched to fit the map overlay. Shape:
 
 ```python
-{
-    "data": [[0, 1], [2, 3]],
-    "topleft": {"x": -6600, "y": -11100}
-}
+[[0, 1], [2, 3]]
 ```
 
 ---
@@ -140,7 +137,7 @@ Use **`sio.emit(event, data)`**; payloads must be JSON or Python objects
 
 `send_debug_ping` | Optional float, defaults to `1.0`  
 
-`matrix-update` | `{"data": 2D array, "topleft": {"x": number, "y": number}}`  
+`matrix-update` | 2D array, such as `[[0, 1], [2, 3]]`  
 
 `metric-warning` | Warning alert object or list of objects  
 
@@ -159,10 +156,7 @@ sio.emit("set_cooling", 0.0)
 sio.emit("set_headlights", 1.0)
 sio.emit("send_ping")
 sio.emit("send_debug_ping", 1.0)
-sio.emit("matrix-update", {
-    "data": [[0, 1], [2, 3]],
-    "topleft": {"x": -6600, "y": -11100},
-})
+sio.emit("matrix-update", [[0, 1], [2, 3]])
 sio.emit("task", ["", "", "", "", ""])
 sio.emit("voiceString", "hello")
 ```
