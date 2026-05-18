@@ -35,7 +35,7 @@ def on_ltv(data):
 
 sio.connect("http://127.0.0.1:5001")
 try:
-    sio.emit("rover-throttle", 100.0)
+    sio.emit("set_throttle", 100.0)
     print("emit ok")
 except Exception as e:
     print(f"Error sending rover throttle: {e}")
@@ -45,14 +45,14 @@ sio.wait()
 Note that the try: and except: aren't actually necessary, just nice to have. It can easily be:
 
 ```python
-sio.emit("rover-throttle", 100.0) 
+sio.emit("set_throttle", 100.0) 
 ```
 
 On its own. Or,
 
 ```python
 if (case):
-    sio.emit("rover-throttle", 100,0)
+    sio.emit("set_throttle", 100.0)
 ```
 
 Register handlers with `@sio.on("<event_name>")` for each server event you care about.
@@ -95,11 +95,28 @@ Read **NASA’s TSS** docs for full JSON field meanings
 
 `eva-telemetry` | JSON object + `local_timestamp`  
 
-`matrix-sync` | 2D JSON array (nested lists); navigation / display matrix  
+`metric-warning` | Latest warning alert object/list + `local_timestamp`; also sent on connect if stored  
+
+`matrix-update` | Latest matrix update object; also sent on connect if stored  
+
+`voiceString` | Echoed voice string  
+
+`udp-command-result` | UDP command result sent back to the requesting client  
+
+`<command>-result` | UDP command result broadcast to all clients, such as `set_throttle-result`  
+
+`udp-command-error` | `{"command": str, "error": str, "local_timestamp": str}` sent back to the requesting client  
 
 `error` | `{"error": str, "local_timestamp": str}`  
 
-`matrix-sync` is the 2D matrix for navigation/display on the frontend 
+`matrix-update` is the 2D matrix update for navigation/display on the frontend. Shape:
+
+```python
+{
+    "data": [[0, 1], [2, 3]],
+    "topleft": {"x": -6600, "y": -11100}
+}
+```
 
 ---
 
@@ -107,34 +124,45 @@ Read **NASA’s TSS** docs for full JSON field meanings
 
 Use **`sio.emit(event, data)`**; payloads must be JSON or Python objects
 
-`rover-throttle` | Single float  
+`set_throttle` | Single float, or `{"value": float}`  
 
-`rover-steering` | Single float  
+`set_steering` | Single float, or `{"value": float}`  
 
-`rover-brakes` | Boolean  
+`set_brakes` | Boolean, or `{"engaged": bool}` / `{"value": bool}`  
 
-`rover-heating` | Single float (0…1)  
+`set_heating` | Single float (0…1), or `{"value": float}`  
 
-`rover-cooling` | Single float (0…1)  
+`set_cooling` | Single float (0…1), or `{"value": float}`  
 
-`rover-headlights` | Single float (0…1)  
+`set_headlights` | Single float (0…1), or `{"value": float}`  
 
-`rover-ping` | Optional float  
+`send_ping` | Optional float, defaults to `1.0`  
 
-`rover-debug-ping` | Optional float  
+`send_debug_ping` | Optional float, defaults to `1.0`  
 
-`matrix` | 2D array  
+`matrix-update` | `{"data": 2D array, "topleft": {"x": number, "y": number}}`  
+
+`metric-warning` | Warning alert object or list of objects  
+
+`task` | One JSON array, or 5 separate args; stored as 5 strings  
+
+`voiceString` | String; echoed back to all clients  
 
 Examples:
 
 ```python
-sio.emit("rover-throttle", 10.0)
-sio.emit("rover-steering", -0.2)
-sio.emit("rover-brakes", False)
-sio.emit("rover-heating", 0.5)
-sio.emit("rover-cooling", 0.0)
-sio.emit("rover-headlights", 1.0)
-sio.emit("rover-ping")
-sio.emit("rover-debug-ping", 1.0)
-sio.emit("matrix", [[0, 1], [2, 3]])
+sio.emit("set_throttle", 10.0)
+sio.emit("set_steering", {"value": -0.2})
+sio.emit("set_brakes", {"engaged": False})
+sio.emit("set_heating", 0.5)
+sio.emit("set_cooling", 0.0)
+sio.emit("set_headlights", 1.0)
+sio.emit("send_ping")
+sio.emit("send_debug_ping", 1.0)
+sio.emit("matrix-update", {
+    "data": [[0, 1], [2, 3]],
+    "topleft": {"x": -6600, "y": -11100},
+})
+sio.emit("task", ["", "", "", "", ""])
+sio.emit("voiceString", "hello")
 ```
