@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Eva1Page from './pages/Eva1'
-import Eva2Page from './pages/Eva2'
+import EvaPage from './pages/Eva'
 import RoverPage from './pages/Rover'
 import MapPage from './pages/Map'
 
@@ -8,8 +7,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/eva1" element={<Eva1Page />} />
-        <Route path="/eva2" element={<Eva2Page />} />
+        <Route path="/eva" element={<EvaPage />} />
         <Route path="/rover" element={<RoverPage />} />
         <Route path="/map" element={<MapPage />} />
       </Routes>
