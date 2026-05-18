@@ -5,7 +5,12 @@ import astronaut from '../assets/astronaut.png'
 // ══════════════════════════════════════════════════════════════════════
 // TELEMETRY RANGES (from EVA Telemetry Ranges spec)
 // ══════════════════════════════════════════════════════════════════════
-const RANGES: Record<string, { min?: number; max?: number; nominal?: number; unit?: string; rateLimit?: number }> = {
+type TelemetryRange = { min?: number; max?: number; nominal?: number; unit?: string; rateLimit?: number }
+
+const NOMINAL_DEVIATION_RATIO = 0.05
+const SEVERE_RANGE_BUFFER_RATIO = 0.05
+
+const EVA_RANGES: Record<string, TelemetryRange> = {
   primary_battery_level:    { min: 20,    max: 100  },
   secondary_battery_level:  { min: 20,    max: 100  },
   oxy_pri_storage:          { min: 20,    max: 100  },
@@ -30,6 +35,26 @@ const RANGES: Record<string, { min?: number; max?: number; nominal?: number; uni
   coolant_gas_pressure:     { min: 0,    max: 700,  nominal: 0    },
 }
 
+const ROVER_RANGES: Record<string, TelemetryRange> = {
+  pitch:                    { min: -50,   max: 50   },
+  roll:                     { min: 0,     max: 50   },
+  speed:                    { min: 0,     max: 18   },
+  throttle:                 { min: 0,     max: 100  },
+  steering:                 { min: -1,    max: 1    },
+  distance_traveled:        { min: 0              },
+  surface_incline:          { min: -50,   max: 50   },
+  distance_from_base:       { min: 0,     max: 2500 },
+  oxygen_tank:              { min: 25,    max: 100  },
+  oxygen_pressure:          { min: 2997,  max: 3000 },
+  fan_pri_rpm:              { min: 29999, max: 30005 },
+  fan_sec_rpm:              { min: 29999, max: 30005 },
+  cabin_pressure:           { min: 3.5,   max: 4.1, nominal: 4.0 },
+  cabin_temperature:        { min: 10,             nominal: 21  },
+  coolant_pressure:         { min: 495,   max: 501, nominal: 500 },
+  coolant_storage:          { min: 80,    max: 100, nominal: 100 },
+  battery_level:            { min: 30,    max: 100  },
+}
+
 // Rate-of-change limits — max allowed delta per second before triggering alert
 const RATE_LIMITS: Record<string, number> = {
   primary_battery_level:   2,
@@ -52,39 +77,64 @@ interface AlertItem {
   ts: number
 }
 
+function rangeSpan(range: TelemetryRange) {
+  if (range.min !== undefined && range.max !== undefined) return Math.abs(range.max - range.min)
+  return 0
+}
+
+function nominalTolerance(range: TelemetryRange) {
+  const span = rangeSpan(range)
+  if (span > 0) return span * NOMINAL_DEVIATION_RATIO
+  return Math.max(Math.abs(range.nominal ?? 0) * NOMINAL_DEVIATION_RATIO, 0.001)
+}
+
+function severeRangeBuffer(range: TelemetryRange) {
+  if (range.nominal !== undefined) return 0
+
+  const span = rangeSpan(range)
+  if (span > 0) return span * SEVERE_RANGE_BUFFER_RATIO
+
+  const boundary = Math.abs(range.min ?? range.max ?? 0)
+  return Math.max(boundary * SEVERE_RANGE_BUFFER_RATIO, 1)
+}
+
 function checkRanges(
-  evaLabel: string,
+  label: string,
   data: Record<string, number>,
   prev: Record<string, number> | null,
   dtSec: number,
+  ranges: Record<string, TelemetryRange> = EVA_RANGES,
+  rateLimits: Record<string, number> = RATE_LIMITS,
 ): AlertItem[] {
   const alerts: AlertItem[] = []
   const now = Date.now()
 
-  for (const [key, range] of Object.entries(RANGES)) {
+  for (const [key, range] of Object.entries(ranges)) {
     const val = data[key]
     if (val === undefined || val === null) continue
 
-    // Range check
+    const severeBuffer = severeRangeBuffer(range)
     if (range.min !== undefined && val < range.min) {
+      const level = val < range.min - severeBuffer ? 'danger' : 'warn'
       alerts.push({
-        id: `${evaLabel}-${key}-low`,
-        title: `${evaLabel} ${key.replace(/_/g, ' ')} LOW`,
+        id: `${label}-${key}-low`,
+        title: `${label} ${key.replace(/_/g, ' ')} LOW`,
         sub: `Value ${val.toFixed(2)} below min ${range.min}`,
-        level: 'danger', ts: now,
+        level, ts: now,
       })
     } else if (range.max !== undefined && val > range.max) {
+      const level = val > range.max + severeBuffer ? 'danger' : 'warn'
       alerts.push({
-        id: `${evaLabel}-${key}-high`,
-        title: `${evaLabel} ${key.replace(/_/g, ' ')} HIGH`,
+        id: `${label}-${key}-high`,
+        title: `${label} ${key.replace(/_/g, ' ')} HIGH`,
         sub: `Value ${val.toFixed(2)} exceeds max ${range.max}`,
-        level: 'danger', ts: now,
+        level, ts: now,
       })
-    } else if (range.nominal !== undefined && Math.abs(val - range.nominal) > 0.001) {
-      // Only warn if within range but off nominal
+    } else if (range.nominal !== undefined && Math.abs(val - range.nominal) > nominalTolerance(range)) {
+      // Only warn if within range but significantly off nominal.
       alerts.push({
-        id: `${evaLabel}-${key}-nominal`,
-        title: `${evaLabel} ${key.replace(/_/g, ' ')} off nominal`,
+        id: `${label}-${key}-nominal`,
+        title: `${label} ${key.replace(/_/g, ' ')} off nominal`,
         sub: `${val.toFixed(2)} (nominal: ${range.nominal})`,
         level: 'warn', ts: now,
       })
@@ -92,15 +142,15 @@ function checkRanges(
 
     // Rate-of-change check
     if (prev && dtSec > 0) {
-      const limit = RATE_LIMITS[key]
+      const limit = rateLimits[key]
       if (limit !== undefined) {
         const prevVal = prev[key]
         if (prevVal !== undefined) {
           const rate = Math.abs(val - prevVal) / dtSec
           if (rate > limit) {
             alerts.push({
-              id: `${evaLabel}-${key}-rate`,
-              title: `${evaLabel} ${key.replace(/_/g, ' ')} changing fast`,
+              id: `${label}-${key}-rate`,
+              title: `${label} ${key.replace(/_/g, ' ')} changing fast`,
               sub: `Δ${(val - prevVal).toFixed(2)} in ${dtSec.toFixed(1)}s (limit ${limit}/s)`,
               level: 'warn', ts: now,
             })
@@ -456,7 +506,7 @@ const TelemetryCol = (p: TelemetryColProps) => {
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════════════════
 export default function Eva1Page() {
-  const { evaData, metricWarnings } = useSocket()
+  const { evaData, metricWarnings, roverData } = useSocket() as { evaData: any; metricWarnings: any[]; roverData: any }
 
   const defaultEva1 = {
     primary_battery_level: 0, secondary_battery_level: 0,
@@ -496,16 +546,19 @@ export default function Eva1Page() {
   // ── Rate-of-change tracking ──────────────────────────────────────
   const prevEva1Ref = useRef<typeof eva1 | null>(null)
   const prevEva2Ref = useRef<typeof eva2Normalized | null>(null)
+  const prevRoverRef = useRef<Record<string, number> | null>(null)
   const prevTsRef = useRef<number>(Date.now())
   const [alerts, setAlerts] = useState<AlertItem[]>([])
 
   useEffect(() => {
-    if (!evaData) return
+    if (!evaData && !roverData) return
     const now = Date.now()
     const dtSec = (now - prevTsRef.current) / 1000
+    const roverTelemetry = roverData?.pr_telemetry ?? {}
     const newAlerts: AlertItem[] = [
       ...checkRanges('EVA-1', eva1 as any, prevEva1Ref.current as any, dtSec),
       ...checkRanges('EVA-2', eva2Normalized as any, prevEva2Ref.current as any, dtSec),
+      ...checkRanges('ROVER', roverTelemetry as any, prevRoverRef.current, dtSec, ROVER_RANGES, {}),
     ]
     // Deduplicate by id — keep latest
     const map = new Map<string, AlertItem>()
@@ -517,8 +570,9 @@ export default function Eva1Page() {
     }))
     prevEva1Ref.current = { ...eva1 }
     prevEva2Ref.current = { ...eva2Normalized }
+    prevRoverRef.current = { ...roverTelemetry }
     prevTsRef.current = now
-  }, [evaData])
+  }, [evaData, roverData])
 
   // Build alert key sets for coloring telemetry bars
   const eva1AlertKeys = new Set(alerts.filter(a => a.id.startsWith('EVA-1')).map(a => a.id.replace('EVA-1-', '').replace(/-low$|-high$|-nominal$|-rate$/, '')))
@@ -581,8 +635,13 @@ export default function Eva1Page() {
     }
   })
   const displayedAlerts = [...metricWarningAlerts, ...alerts]
-    .sort((a, b) => b.ts - a.ts)
+    .sort((a, b) => {
+      if (a.level === 'danger' && b.level !== 'danger') return -1
+      if (b.level === 'danger' && a.level !== 'danger') return 1
+      return b.ts - a.ts
+    })
     .slice(0, 5)
+  const dangerAlertCount = displayedAlerts.filter(a => a.level === 'danger').length
 
   const formatTime = (s: number) => {
     const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60)
@@ -606,9 +665,9 @@ export default function Eva1Page() {
           <div style={{ fontSize: 8, letterSpacing: 3, color: '#475569', textTransform: 'uppercase' }}>mission elapsed</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {alerts.filter(a => a.level === 'danger').length > 0 && (
+          {dangerAlertCount > 0 && (
             <div style={{ background: 'rgba(248,113,113,0.2)', border: '1px solid rgba(248,113,113,0.4)', borderRadius: 20, padding: '3px 12px', fontSize: 10, color: '#fca5a5', fontWeight: 600 }}>
-              ⚠ {alerts.filter(a => a.level === 'danger').length} FAULT{alerts.filter(a => a.level === 'danger').length > 1 ? 'S' : ''}
+              ⚠ {dangerAlertCount} FAULT{dangerAlertCount > 1 ? 'S' : ''}
             </div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #1e3a2a', borderRadius: 20, padding: '3px 12px', fontSize: 9.5, color: missionRunning ? '#4ade80' : '#475569' }}>
@@ -710,7 +769,7 @@ export default function Eva1Page() {
         <div style={{ flex: 1, minHeight: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6, borderBottom: '1px solid rgba(56,189,248,0.12)', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
             <div style={{ fontSize: 9, letterSpacing: 3, color: '#7dd3fc', textTransform: 'uppercase' }}>⚠ Active Alerts</div>
-            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, background: displayedAlerts.length > 0 ? 'rgba(248,113,113,0.2)' : 'rgba(34,197,94,0.15)', color: displayedAlerts.length > 0 ? '#fca5a5' : '#86efac', borderRadius: 10, padding: '1px 8px', border: `1px solid ${displayedAlerts.length > 0 ? 'rgba(248,113,113,0.35)' : 'rgba(34,197,94,0.3)'}` }}>
+            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, background: dangerAlertCount > 0 ? 'rgba(248,113,113,0.2)' : displayedAlerts.length > 0 ? 'rgba(250,204,21,0.15)' : 'rgba(34,197,94,0.15)', color: dangerAlertCount > 0 ? '#fca5a5' : displayedAlerts.length > 0 ? '#fef08a' : '#86efac', borderRadius: 10, padding: '1px 8px', border: `1px solid ${dangerAlertCount > 0 ? 'rgba(248,113,113,0.35)' : displayedAlerts.length > 0 ? 'rgba(250,204,21,0.35)' : 'rgba(34,197,94,0.3)'}` }}>
               {displayedAlerts.length} active
             </div>
           </div>
