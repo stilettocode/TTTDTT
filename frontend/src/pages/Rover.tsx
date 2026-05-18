@@ -1,15 +1,18 @@
 // pages/Rover.tsx
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSocket } from '../context/SocketContext'
 
-const YOUTUBE_LIVE_ID = 'm3kR2KK8TEs'
+// ── mediamtx HLS stream URL ───────────────────────────────────────
+// Change this if mediamtx is running on a different port
+const STREAM_URL = 'http://localhost:8888/live/dust/index.m3u8'
+
 const TEST_VOICE_STRING = 'Test voice string'
 
 // ── Layout constants ──────────────────────────────────────────────
 // Tweak these to shift panels without touching JSX
 const LEFT_TOP    = 16   // top of left panels
 const RIGHT_TOP   = 16   // top of elapsed-time panel
-const CABIN_TOP   = 140   // cabin env starts below elapsed (increased to prevent overlap)
+const CABIN_TOP   = 140  // cabin env starts below elapsed (increased to prevent overlap)
 const SIDE_X      = 20   // horizontal inset for left/right panels
 const BOTTOM_Y    = 45   // bottom inset for bottom panels
 
@@ -105,6 +108,29 @@ export default function RoverPage() {
   const recognitionRef = useRef<any>(null)
   const transcriptRef = useRef('')
   const shouldSendVoiceRef = useRef(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  // ── Attach HLS stream ──────────────────────────────────────────
+  useEffect(() => {
+    let hls: any
+    const video = videoRef.current
+    if (!video) return
+
+    const attach = async () => {
+      const Hls = (await import('hls.js')).default
+      if (Hls.isSupported()) {
+        hls = new Hls({ lowLatencyMode: true })
+        hls.loadSource(STREAM_URL)
+        hls.attachMedia(video)
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Safari native HLS fallback
+        video.src = STREAM_URL
+      }
+    }
+
+    attach()
+    return () => hls?.destroy()
+  }, [])
 
   const pr = roverData?.pr_telemetry
   const ltv = ltvData
@@ -176,12 +202,13 @@ export default function RoverPage() {
   return (
     <div style={styles.root}>
 
-      {/* ── Full-screen video ── */}
-      <iframe
-        style={styles.iframe}
-        src={`https://www.youtube.com/embed/${YOUTUBE_LIVE_ID}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0`}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
+      {/* ── Full-screen video (HLS via mediamtx) ── */}
+      <video
+        ref={videoRef}
+        style={styles.video}
+        autoPlay
+        muted
+        playsInline
       />
 
       {/* ── HUD overlay ── */}
@@ -218,12 +245,10 @@ export default function RoverPage() {
           <HudStat label="BAT SEC" value={fmt(pr?.secondary_battery_level, 0)} unit="%" warn={pr?.secondary_battery_level < 20} />
         </HudPanel>
 
-        {/* ── RIGHT BAR TOP — cabin environment ──
-            Starts at CABIN_TOP (below elapsed time), aligns vertically with left bar top */}
+        {/* ── RIGHT BAR TOP — cabin environment ── */}
         <HudPanel style={{ ...styles.colPanel, top: CABIN_TOP, right: SIDE_X, alignItems: 'flex-end' }}>
           <span style={{ ...styles.sectionTitle, alignSelf: 'flex-end' }}>CABIN ENV</span>
 
-          {/* Temp row: arrows + temp/target side by side, extra padding so arrows don't clip */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end', paddingTop: 4 }}>
             <ThermalIndicator
               temp={pr?.cabin_temperature}
@@ -243,7 +268,7 @@ export default function RoverPage() {
           <HudStat label="COOLANT PRES" value={fmt(pr?.coolant_pressure)}   unit=" kPa" align="right" />
         </HudPanel>
 
-        {/* ── RIGHT BAR — fans / CO₂ scrubbers (moved up, above bottom panels) ── */}
+        {/* ── RIGHT BAR — fans / CO₂ scrubbers ── */}
         <HudPanel style={{ ...styles.colPanel, bottom: BOTTOM_Y + 56, right: SIDE_X, alignItems: 'flex-end' }}>
           <span style={{ ...styles.sectionTitle, alignSelf: 'flex-end' }}>FANS / CO₂</span>
           <HudStat label="FAN PRI RPM" value={fmt(pr?.fan_pri_rpm, 0)}            align="right" />
@@ -292,13 +317,14 @@ const styles: Record<string, React.CSSProperties> = {
     background: '#000',
     overflow: 'hidden',
   },
-  iframe: {
+  video: {
     position: 'absolute',
     inset: 0,
     width: '100%',
     height: '100%',
     border: 'none',
     zIndex: 1,
+    objectFit: 'cover',
   },
   hud: {
     position: 'absolute',
@@ -388,7 +414,7 @@ const styles: Record<string, React.CSSProperties> = {
 const panel: Record<string, React.CSSProperties> = {
   base: {
     display: 'flex',
-    padding: '12px 16px',       // slightly more padding = bigger feel
+    padding: '12px 16px',
     background: 'rgba(0,0,0,0.52)',
     backdropFilter: 'blur(6px)',
     border: '0.5px solid rgba(0,255,180,0.22)',
@@ -405,7 +431,7 @@ const hs: Record<string, React.CSSProperties> = {
     flexShrink: 0,
   },
   label: {
-    fontSize: 10,               // up from 9
+    fontSize: 10,
     letterSpacing: '0.12em',
     color: 'rgba(0,255,180,0.7)',
     textTransform: 'uppercase' as const,
@@ -413,14 +439,14 @@ const hs: Record<string, React.CSSProperties> = {
     fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
   },
   value: {
-    fontSize: 18,               // up from 15
+    fontSize: 18,
     fontWeight: 500,
     letterSpacing: '0.04em',
     fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
     color: '#e8fff8',
   },
   unit: {
-    fontSize: 10,               // up from 9
+    fontSize: 10,
     color: 'rgba(232,255,248,0.45)',
     marginLeft: 2,
   },
