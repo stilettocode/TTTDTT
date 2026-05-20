@@ -36,7 +36,10 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     socket.on('eva-telemetry', (data: EvaData) => setEvaData(data))
     socket.on('ltv-telemetry', (data: LtvData) => setLtvData(data))
     socket.on('ltv-errors-telemetry', (data: LtvErrorsData) => setLtvErrorsData(data))
-    socket.on('matrix-update', (data: MatrixUpdate) => setMatrixUpdate(data))
+    socket.on('matrix-update', (data: MatrixUpdate) => {
+      //console.log('[matrix-update]', JSON.stringify(data))
+      setMatrixUpdate(data)
+    })
     socket.on('metric-warning', (data: MetricWarningAlert | MetricWarningAlert[]) => {
       const incoming = Array.isArray(data) ? data : [data]
       const timestamped = incoming.map((alert) => ({

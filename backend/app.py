@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
+import os
 import time
 import threading
 import json
@@ -13,9 +14,11 @@ CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading", logger=True, engineio_logger=True)
 
 #tss
-TSS_UDP_HOST = "192.168.4.231"
+TSS_UDP_HOST = os.environ.get("TSS_UDP_HOST", "172.24.149.156")
+TSS_UDP_PORT = int(os.environ.get("TSS_UDP_PORT", "14141"))
+BACKEND_FETCH_INTERVAL_SEC = float(os.environ.get("BACKEND_FETCH_INTERVAL_SEC", "1.0"))
 
-udp_client = TSSUdpClient(TSS_UDP_HOST)
+udp_client = TSSUdpClient(TSS_UDP_HOST, port=TSS_UDP_PORT)
 
 is_running = True
 
@@ -91,6 +94,20 @@ def _emit_udp_command_result(event_name: str, command_func, value=None):
         _emit_udp_command_error(event_name, str(e))
 
 
+def _handle_float_command(event_name: str, data, command_func, default: float = 0.0):
+    value = _parse_float_command_value(event_name, data, default=default)
+    if value is None:
+        return
+    _emit_udp_command_result(event_name, command_func, value)
+
+
+def _handle_bool_command(event_name: str, data, command_func, default: bool = False):
+    value = _parse_bool_command_value(event_name, data, default=default)
+    if value is None:
+        return
+    _emit_udp_command_result(event_name, command_func, value)
+
+
 def fetch_loop():
 
     # background loop that polls rover telemetry via udp and pushes it over socketio.
@@ -127,7 +144,6 @@ def fetch_loop():
             print(f"Error: {error_data}")
             socketio.emit("error", error_data)
 
-        time.sleep(2)
 
 
 @socketio.on("connect")
@@ -233,6 +249,46 @@ def handle_send_debug_ping(data=None):
     _emit_udp_command_result("send_debug_ping", udp_client.send_debug_ping, value)
 
 
+@socketio.on("rover-throttle")
+def handle_rover_throttle(data=None):
+    _handle_float_command("rover-throttle", data, udp_client.set_throttle)
+
+
+@socketio.on("rover-steering")
+def handle_rover_steering(data=None):
+    _handle_float_command("rover-steering", data, udp_client.set_steering)
+
+
+@socketio.on("rover-brakes")
+def handle_rover_brakes(data=None):
+    _handle_bool_command("rover-brakes", data, udp_client.set_brakes)
+
+
+@socketio.on("rover-heating")
+def handle_rover_heating(data=None):
+    _handle_float_command("rover-heating", data, udp_client.set_heating)
+
+
+@socketio.on("rover-cooling")
+def handle_rover_cooling(data=None):
+    _handle_float_command("rover-cooling", data, udp_client.set_cooling)
+
+
+@socketio.on("rover-headlights")
+def handle_rover_headlights(data=None):
+    _handle_float_command("rover-headlights", data, udp_client.set_headlights)
+
+
+@socketio.on("rover-ping")
+def handle_rover_ping(data=None):
+    _handle_float_command("rover-ping", data, udp_client.send_ping, default=1.0)
+
+
+@socketio.on("rover-debug-ping")
+def handle_rover_debug_ping(data=None):
+    _handle_float_command("rover-debug-ping", data, udp_client.send_debug_ping, default=1.0)
+
+
 @socketio.on("metric-warning")
 def handle_metric_warning(data):
     global metric_warnings_stored
@@ -258,38 +314,62 @@ def handle_metric_warning(data):
     socketio.emit("metric-warning", timestamped_alerts)
 
 
-@socketio.on("matrix-update")
-def handle_matrix_update(data):
-    global latest_matrix_update
+def _normalize_matrix_update(event_name: str, data):
+    if event_name == "matrix" and isinstance(data, list):
+        matrix = data
+        top_left = {"x": -6550, "y": -9750}
+        local_timestamp = datetime.now().isoformat()
+    elif isinstance(data, dict):
+        matrix = data.get("data")
+        top_left = data.get("topleft")
+        local_timestamp = data.get("local_timestamp", datetime.now().isoformat())
+    else:
+        emit("error", {"error": f"{event_name} payload must be an object"})
+        return None
 
-    if not isinstance(data, dict):
-        emit("error", {"error": "matrix-update payload must be an object"})
-        return
-
-    matrix = data.get("data")
-    top_left = data.get("topleft")
     if not isinstance(matrix, list) or not all(isinstance(row, list) for row in matrix):
-        emit("error", {"error": "matrix-update data must be a matrix array"})
-        return
+        emit("error", {"error": f"{event_name} data must be a matrix array"})
+        return None
 
     if (
         not isinstance(top_left, dict)
         or not isinstance(top_left.get("x"), (int, float))
         or not isinstance(top_left.get("y"), (int, float))
     ):
-        emit("error", {"error": "matrix-update topleft must include numeric x and y"})
-        return
+        emit("error", {"error": f"{event_name} topleft must include numeric x and y"})
+        return None
 
-    latest_matrix_update = {
+    return {
         "data": matrix,
         "topleft": {
-            "x": top_left["x"],
-            "y": top_left["y"],
+            "x": -6550,
+            "y": -9750,
         },
-        "local_timestamp": data.get("local_timestamp", datetime.now().isoformat()),
+        "local_timestamp": local_timestamp,
     }
+
+
+def _store_and_broadcast_matrix(event_name: str, data):
+    global latest_matrix_update
+
+    matrix_update = _normalize_matrix_update(event_name, data)
+    if matrix_update is None:
+        return
+
+    latest_matrix_update = matrix_update
     print(f"Matrix update received: {json.dumps(latest_matrix_update)}")
     socketio.emit("matrix-update", latest_matrix_update)
+    #socketio.emit("matrix-sync", latest_matrix_update)
+
+
+# @socketio.on("matrix-update")
+# def handle_matrix_update(data):
+#     _store_and_broadcast_matrix("matrix-update", data)
+
+
+@socketio.on("matrix")
+def handle_matrix(data):
+    _store_and_broadcast_matrix("matrix", data)
 
 
 @app.route("/", methods=["GET", "POST"])

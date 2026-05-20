@@ -8,12 +8,10 @@ import type { MatrixUpdate } from '../types'
 
 const IMAGE_WIDTH = 2452
 const IMAGE_HEIGHT = 1551
-const PORTRAIT_WIDTH = IMAGE_HEIGHT
-const PORTRAIT_HEIGHT = IMAGE_WIDTH
-const WORLD_MIN_X = -6600
-const WORLD_MAX_X = -5100
-const WORLD_MIN_Y = -11100
-const WORLD_MAX_Y = -10200
+const WORLD_MIN_X = -6550
+const WORLD_MAX_X = -5450
+const WORLD_MIN_Y = -11450
+const WORLD_MAX_Y = -9750
 const WORLD_WIDTH = WORLD_MAX_X - WORLD_MIN_X
 const WORLD_HEIGHT = WORLD_MAX_Y - WORLD_MIN_Y
 const CELL_WIDTH = IMAGE_WIDTH / WORLD_WIDTH
@@ -47,6 +45,13 @@ interface Waypoint {
   y: number
 }
 
+function worldToImage(worldX: number, worldY: number) {
+  return {
+    x: (worldX - WORLD_MIN_X) * CELL_WIDTH,
+    y: (WORLD_MAX_Y - worldY) * CELL_HEIGHT,
+  }
+}
+
 function cellKey(x: number, y: number) {
   return `${x},${y}`
 }
@@ -57,17 +62,15 @@ function applyMatrixUpdate(current: MatrixCells, update: MatrixUpdate) {
   update.data.forEach((row, rowIndex) => {
     row.forEach((rawValue, colIndex) => {
       const x = update.topleft.x + colIndex
-      const y = update.topleft.y + rowIndex
-      if (x < WORLD_MIN_X || x >= WORLD_MAX_X || y < WORLD_MIN_Y || y >= WORLD_MAX_Y) return
-
-      const key = cellKey(x, y)
-      const value = Number(rawValue)
-      if (value === 0) {
-        next.delete(key)
+      const y = update.topleft.y - rowIndex
+      if (x < WORLD_MIN_X || x > WORLD_MAX_X || y < WORLD_MIN_Y || y > WORLD_MAX_Y) {
         return
       }
 
-      if (MATRIX_COLORS[value]) next.set(key, value)
+      const key = cellKey(x, y)
+      const value = Number(rawValue)
+      if (value === 0) { next.delete(key); return }
+      if (MATRIX_COLORS[value]) { next.set(key, value)}
     })
   })
 
@@ -93,9 +96,9 @@ function MatrixOverlay({ cells }: { cells: MatrixCells }) {
       if (!color) return
 
       const left = (x - WORLD_MIN_X) * CELL_WIDTH
-      const top = (y - WORLD_MIN_Y) * CELL_HEIGHT
+      const top = (WORLD_MAX_Y - y) * CELL_HEIGHT
       ctx.fillStyle = color
-      ctx.fillRect(left, top, CELL_WIDTH, CELL_HEIGHT)
+      ctx.fillRect(left - 2, top - 2, CELL_WIDTH + 4, CELL_HEIGHT + 4)
 
       ctx.fillStyle = value === 3 || value === 5 ? '#111827' : '#f8fafc'
       ctx.fillText(String(value), left + CELL_WIDTH / 2, top + CELL_HEIGHT / 2)
@@ -118,6 +121,9 @@ function MatrixOverlay({ cells }: { cells: MatrixCells }) {
   )
 }
 
+const LTV_WAYPOINT_ID = 'ltv-position'
+const ROVER_WAYPOINT_ID = 'rover-position'
+
 function WaypointMarkers({
   activeWaypointId,
   onSelect,
@@ -128,7 +134,7 @@ function WaypointMarkers({
   waypoints: Waypoint[]
 }) {
   return (
-    <>
+    <div style={{ display: 'contents' }}>
       {waypoints.map((waypoint) => (
         <button
           key={waypoint.id}
@@ -155,7 +161,7 @@ function WaypointMarkers({
           }}
         />
       ))}
-    </>
+    </div>
   )
 }
 
@@ -310,7 +316,7 @@ function WaypointPanel({
                     </div>
 
                     <div style={{ color: '#888', fontSize: 12 }}>
-                      #{index + 1} · Image position {Math.round(waypoint.x)}, {Math.round(waypoint.y)}
+                      #{index + 1} · {Math.round(WORLD_MIN_X + waypoint.x / CELL_WIDTH)}, {Math.round(WORLD_MAX_Y - waypoint.y / CELL_HEIGHT)}
                     </div>
                   </div>
                 )}
@@ -324,19 +330,69 @@ function WaypointPanel({
 }
 
 export default function MapPage() {
-  const { matrixUpdate } = useSocket() as { matrixUpdate: MatrixUpdate | null }
+  const { matrixUpdate, ltvData, roverData} = useSocket() as {
+    matrixUpdate: MatrixUpdate | null
+    ltvData: any
+    roverData: any
+  }
   const [matrixCells, setMatrixCells] = useState<MatrixCells>(() => new Map())
   const [waypoints, setWaypoints] = useState<Waypoint[]>([])
   const [activeWaypointId, setActiveWaypointId] = useState<string | null>(null)
   const pointerDownRef = useRef<{ x: number; y: number } | null>(null)
-  const scaleX = window.innerWidth / PORTRAIT_WIDTH
-  const scaleY = window.innerHeight / PORTRAIT_HEIGHT
+  const scaleX = window.innerWidth / IMAGE_WIDTH
+  const scaleY = window.innerHeight / IMAGE_HEIGHT
   const fitScale = Math.min(scaleX, scaleY)
 
   useEffect(() => {
     if (!matrixUpdate) return
     setMatrixCells((current) => applyMatrixUpdate(current, matrixUpdate))
   }, [matrixUpdate])
+
+useEffect(() => {
+  if (!ltvData?.location) return
+
+  const { x, y } = worldToImage(
+    ltvData.location.last_known_x,
+    ltvData.location.last_known_y,
+  )
+
+  const waypoint: Waypoint = {
+    id: LTV_WAYPOINT_ID,
+    name: 'LTV',
+    color: 'yellow',
+    x,
+    y,
+  }
+
+  setWaypoints((current) => {
+    const exists = current.some((w) => w.id === LTV_WAYPOINT_ID)
+    return exists
+      ? current.map((w) => (w.id === LTV_WAYPOINT_ID ? waypoint : w))
+      : [...current, waypoint]
+  })
+}, [ltvData])
+
+useEffect(() => {
+  console.log(roverData)
+  if (!roverData?.pr_telemetry?.rover_pos_x || !roverData?.pr_telemetry?.rover_pos_y) return
+
+  const { x, y } = worldToImage(roverData?.pr_telemetry?.rover_pos_x, roverData?.pr_telemetry?.rover_pos_y)
+
+  const waypoint: Waypoint = {
+    id: ROVER_WAYPOINT_ID,
+    name: 'Rover',
+    color: 'orange',
+    x,
+    y,
+  }
+
+  setWaypoints((current) => {
+    const exists = current.some((w) => w.id === ROVER_WAYPOINT_ID)
+    return exists
+      ? current.map((w) => (w.id === ROVER_WAYPOINT_ID ? waypoint : w))
+      : [...current, waypoint]
+  })
+}, [roverData])
 
   const updateWaypoint = (id: string, patch: Partial<Pick<Waypoint, 'color' | 'name'>>) => {
     setWaypoints((current) =>
@@ -365,10 +421,8 @@ export default function MapPage() {
     }
 
     const rect = event.currentTarget.getBoundingClientRect()
-    const portraitX = ((event.clientX - rect.left) / rect.width) * PORTRAIT_WIDTH
-    const portraitY = ((event.clientY - rect.top) / rect.height) * PORTRAIT_HEIGHT
-    const x = Math.max(0, Math.min(IMAGE_WIDTH, portraitY))
-    const y = Math.max(0, Math.min(IMAGE_HEIGHT, IMAGE_HEIGHT - portraitX))
+    const x = ((event.clientX - rect.left) / rect.width) * IMAGE_WIDTH
+    const y = ((event.clientY - rect.top) / rect.height) * IMAGE_HEIGHT
     const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`
     const waypoint: Waypoint = {
       id,
@@ -385,39 +439,28 @@ export default function MapPage() {
   return (
     <div style={{ display: 'flex', width: '100vw', height: '100vh' }}>
 
-      <WaypointPanel
-        activeWaypointId={activeWaypointId}
-        onCollapse={() => setActiveWaypointId(null)}
-        onDelete={deleteWaypoint}
-        onSelect={setActiveWaypointId}
-        onUpdate={updateWaypoint}
-        waypoints={waypoints}
-      />
+        <WaypointPanel
+          activeWaypointId={activeWaypointId}
+          onCollapse={() => setActiveWaypointId(null)}
+          onDelete={deleteWaypoint}
+          onSelect={setActiveWaypointId}
+          onUpdate={updateWaypoint}
+          waypoints={waypoints}
+        />
 
-      {/* Map - takes up remaining space */}
-      <div style={{ flex: 1, overflow: 'hidden' }}>
-        <TransformWrapper
-          initialScale={fitScale}
-          minScale={fitScale}
-          maxScale={10}
-          wheel={{ step: 0.1 }}
-        >
-          <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
-            <div
-              onClick={handleMapClick}
-              onPointerDown={handleMapPointerDown}
-              style={{ position: 'relative', width: PORTRAIT_WIDTH, height: PORTRAIT_HEIGHT, cursor: 'crosshair' }}
-            >
+        {/* Map - takes up remaining space */}
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <TransformWrapper
+            initialScale={fitScale}
+            minScale={fitScale}
+            maxScale={10}
+            wheel={{ step: 0.1 }}
+          >
+            <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
               <div
-                style={{
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  width: IMAGE_WIDTH,
-                  height: IMAGE_HEIGHT,
-                  transform: 'translate(-50%, -50%) rotate(90deg)',
-                  transformOrigin: 'center',
-                }}
+                onClick={handleMapClick}
+                onPointerDown={handleMapPointerDown}
+                style={{ position: 'relative', width: IMAGE_WIDTH, height: IMAGE_HEIGHT, cursor: 'crosshair' }}
               >
                 <img
                   src={mapImage}
@@ -432,11 +475,9 @@ export default function MapPage() {
                   waypoints={waypoints}
                 />
               </div>
-            </div>
-          </TransformComponent>
-        </TransformWrapper>
-      </div>
-
+            </TransformComponent>
+          </TransformWrapper>
+        </div>
 
     </div>
   )

@@ -147,7 +147,7 @@ const IconSuitPressure = ({ color = '#3a5ab0' }) => (
     <path d="M6 16 L5 11 C4 10 4 8 6 7 L9 6 L12 7 C14 8 14 10 13 11 L12 16 Z" stroke={color} strokeWidth="1.1" strokeLinejoin="round" />
     <circle cx="9" cy="4.5" r="2" stroke={color} strokeWidth="1.1" />
     <line x1="9" y1="10" x2="9" y2="13" stroke={color} strokeWidth="1" strokeLinecap="round" strokeOpacity="0.6" />
-    <polyline points="7.5,11.5 9,13 10.5,11.5" stroke={color} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" />
+    <polyline points="7.5,11.5 9,13 8,11.5" stroke={color} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" />
   </svg>
 )
 const IconDroplet = ({ color = '#4a7adf' }) => (
@@ -166,9 +166,9 @@ const IconFan = ({ color = '#4a7adf' }) => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
     <circle cx="9" cy="9" r="2.2" stroke={color} strokeWidth="1.1" />
     <path d="M9 2 Q12.5 5.5 9 6.5 Q5.5 7.5 9 2Z" fill={color} fillOpacity=".65" />
-    <path d="M9 16 Q5.5 12.5 9 11.5 Q12.5 10.5 9 16Z" fill={color} fillOpacity=".65" />
+    <path d="M9 16 Q5.5 12.5 9 11.5 Q12.5 8 9 16Z" fill={color} fillOpacity=".65" />
     <path d="M2 9 Q5.5 5.5 6.5 9 Q7.5 12.5 2 9Z" fill={color} fillOpacity=".65" />
-    <path d="M16 9 Q12.5 12.5 11.5 9 Q10.5 5.5 16 9Z" fill={color} fillOpacity=".65" />
+    <path d="M16 9 Q12.5 12.5 11.5 9 Q8 5.5 16 9Z" fill={color} fillOpacity=".65" />
     <circle cx="9" cy="9" r="1.3" fill={color} />
   </svg>
 )
@@ -176,7 +176,7 @@ const IconScrubber = ({ color = '#3a5ab0' }) => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
     <rect x="3" y="4" width="12" height="11" rx="2" stroke={color} strokeWidth="1.2" />
     <line x1="3" y1="7.5" x2="15" y2="7.5" stroke={color} strokeWidth="0.85" strokeOpacity=".5" />
-    <line x1="3" y1="10.5" x2="15" y2="10.5" stroke={color} strokeWidth="0.85" strokeOpacity=".5" />
+    <line x1="3" y1="8" x2="15" y2="8" stroke={color} strokeWidth="0.85" strokeOpacity=".5" />
     <line x1="3" y1="13" x2="15" y2="13" stroke={color} strokeWidth="0.85" strokeOpacity=".35" />
     <line x1="7" y1="2" x2="7" y2="4" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
     <line x1="11" y1="2" x2="11" y2="4" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
@@ -184,20 +184,20 @@ const IconScrubber = ({ color = '#3a5ab0' }) => (
 )
 const IconHeartRate = ({ color = '#7a4a7a' }) => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-    <path d="M1.5 9 L4.5 9 L6 5 L7.5 13.5 L9 5.5 L10.5 12 L12 9 L16.5 9" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M1.5 9 L4.5 9 L6 5 L7.5 13.5 L9 5.5 L8 12 L12 9 L16.5 9" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
 const IconConsump = ({ color = '#5a4a7a' }) => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
     <path d="M9 14 L9 8" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
-    <path d="M9 8 C6 8 4 6 4 4 C4 3 5 2.5 6 3 C7 3.5 7.5 5 9 5 C10.5 5 11 3.5 12 3 C13 2.5 14 3 14 4 C14 6 12 8 9 8Z" stroke={color} strokeWidth="1" fill={color} fillOpacity="0.15" />
+    <path d="M9 8 C6 8 4 6 4 4 C4 3 5 2.5 6 3 C7 3.5 7.5 5 9 5 C8 5 11 3.5 12 3 C13 2.5 14 3 14 4 C14 6 12 8 9 8Z" stroke={color} strokeWidth="1" fill={color} fillOpacity="0.15" />
     <polyline points="7,12 9,14 11,12" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.7" />
   </svg>
 )
 const IconCO2Out = ({ color = '#5a4a4a' }) => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
     <path d="M9 4 L9 10" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
-    <path d="M9 10 C6 10 4 12 4 14 C4 15 5 15.5 6 15 C7 14.5 7.5 13 9 13 C10.5 13 11 14.5 12 15 C13 15.5 14 15 14 14 C14 12 12 10 9 10Z" stroke={color} strokeWidth="1" fill={color} fillOpacity="0.15" />
+    <path d="M9 10 C6 10 4 12 4 14 C4 15 5 15.5 6 15 C7 14.5 7.5 13 9 13 C8 13 11 14.5 12 15 C13 15.5 14 15 14 14 C14 12 12 10 9 10Z" stroke={color} strokeWidth="1" fill={color} fillOpacity="0.15" />
     <polyline points="7,6 9,4 11,6" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.7" />
   </svg>
 )
@@ -206,9 +206,9 @@ const IconTemp = ({ color = '#4a7adf' }) => (
     <rect x="7.5" y="2" width="3" height="10" rx="1.5" stroke={color} strokeWidth="1.1" />
     <circle cx="9" cy="14.5" r="2.5" stroke={color} strokeWidth="1.1" fill={color} fillOpacity="0.22" />
     <rect x="8.2" y="7" width="1.6" height="5.5" rx="0.8" fill={color} fillOpacity="0.7" />
-    <line x1="10.5" y1="5" x2="12.5" y2="5" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeOpacity="0.5" />
-    <line x1="10.5" y1="7.5" x2="12.5" y2="7.5" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeOpacity="0.5" />
-    <line x1="10.5" y1="10" x2="12.5" y2="10" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeOpacity="0.5" />
+    <line x1="8" y1="5" x2="12.5" y2="5" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeOpacity="0.5" />
+    <line x1="8" y1="7.5" x2="12.5" y2="7.5" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeOpacity="0.5" />
+    <line x1="8" y1="10" x2="12.5" y2="10" stroke={color} strokeWidth="0.9" strokeLinecap="round" strokeOpacity="0.5" />
   </svg>
 )
 const IconPosX = ({ color = '#4a7adf' }) => (
@@ -252,22 +252,38 @@ const IconCompass = ({ color = '#4a7adf', heading = 0 }: { color?: string; headi
 // ══════════════════════════════════════════════════════════════════════
 // SHARED UI
 // ══════════════════════════════════════════════════════════════════════
+// const SectionLabel = ({ children, color }: { children: React.ReactNode; color?: string }) => (
+//   <div style={{ fontSize: 9, letterSpacing: 2.5, color: color ?? '#7dd3fc', textTransform: 'uppercase', marginBottom: 2 }}>{children}</div>
+// )
 const SectionLabel = ({ children, color }: { children: React.ReactNode; color?: string }) => (
-  <div style={{ fontSize: 9, letterSpacing: 2.5, color: color ?? '#7dd3fc', textTransform: 'uppercase', marginBottom: 2 }}>{children}</div>
+  <div style={{ fontSize: 7, letterSpacing: 2.5, color: color ?? '#7dd3fc', textTransform: 'uppercase', marginBottom: 2 }}>{children}</div>
 )
 const Divider = () => <div style={{ height: 1, background: 'rgba(56,189,248,0.14)', flexShrink: 0 }} />
 
 interface MiniBarProps { icon: React.ReactNode; label: string; value: string; pct: number; fillColor?: string; warn?: boolean }
+// const MiniBar = ({ icon, label, value, pct, fillColor = '#2a2c48', warn }: MiniBarProps) => {
+//   const c = warn ? '#f87171' : fillColor
+//   return (
+//     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, padding: '4px 0' }}>
+//       <div style={{ width: 20, height: 20, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
+//       <span style={{ fontSize: 11, color: c, width: 96, flexShrink: 0 }}>{label}</span>
+//       <div style={{ flex: 1, height: 4, background: '#0f172a', borderRadius: 2, overflow: 'hidden' }}>
+//         <div style={{ width: `${Math.min(100, Math.max(0, pct))}%`, height: '100%', background: c, borderRadius: 2, boxShadow: warn ? `0 0 6px #f8717166` : `0 0 4px ${c}44` }} />
+//       </div>
+//       <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: c, minWidth: 56, textAlign: 'right' }}>{value}</span>
+//     </div>
+//   )
+// }
 const MiniBar = ({ icon, label, value, pct, fillColor = '#2a2c48', warn }: MiniBarProps) => {
   const c = warn ? '#f87171' : fillColor
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, padding: '4px 0' }}>
-      <div style={{ width: 20, height: 20, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
-      <span style={{ fontSize: 11, color: c, width: 96, flexShrink: 0 }}>{label}</span>
-      <div style={{ flex: 1, height: 4, background: '#0f172a', borderRadius: 2, overflow: 'hidden' }}>
-        <div style={{ width: `${Math.min(100, Math.max(0, pct))}%`, height: '100%', background: c, borderRadius: 2, boxShadow: warn ? `0 0 6px #f8717166` : `0 0 4px ${c}44` }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 1, padding: '1px 0' }}>
+      <div style={{ width: 16, height: 16, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: warn ? 1 : 0.6 }}>{icon}</div>
+      <span style={{ fontSize: 8, color: warn ? c : 'rgba(148,163,184,0.7)', width: 88, flexShrink: 0, textTransform: "capitalize"}}>{label}</span>
+      <div style={{ flex: 1, height: 3, background: 'rgba(15,23,42,0.8)', borderRadius: 2, overflow: 'hidden' }}>
+        <div style={{ width: `${Math.min(100, Math.max(0, pct))}%`, height: '100%', background: warn ? '#f87171' : `${fillColor}99`, borderRadius: 2, boxShadow: warn ? `0 0 5px #f8717155` : 'none', transition: 'width 0.4s ease' }} />
       </div>
-      <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: c, minWidth: 56, textAlign: 'right' }}>{value}</span>
+      <span style={{ fontFamily: 'JetBrains Mono, Fira Code, monospace', fontSize: 8, color: warn ? '#f87171' : `${fillColor}cc`, minWidth: 52, textAlign: 'right', opacity: warn ? 1 : 0.55 }}>{value}</span>
     </div>
   )
 }
@@ -277,13 +293,13 @@ const GaugeRow = ({ icon, label, value, pct, fillColor = '#4a7adf', warn }: Gaug
   const c = warn ? '#f87171' : fillColor
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
-      <div style={{ width: 30, height: 30, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 7, background: '#0f172a', border: `1px solid ${warn ? 'rgba(248,113,113,0.4)' : 'rgba(56,189,248,0.2)'}` }}>{icon}</div>
+      <div style={{ width: 18, height: 18, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 7, background: '#0f172a', border: `1px solid ${warn ? 'rgba(248,113,113,0.4)' : 'rgba(56,189,248,0.2)'}` }}>{icon}</div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 11, letterSpacing: 1.2, color: c, textTransform: 'uppercase', marginBottom: 2, display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ fontSize: 7, letterSpacing: 1.2, color: c, textTransform: 'uppercase', marginBottom: 2, display: 'flex', justifyContent: 'space-between' }}>
           <span style={{ alignSelf: 'center' }}>{label}</span>
-          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12 }}>{value}</span>
+          <span style={{ fontFamily: 'JetBrains Mono, Fira Code, monospace'}}>{value}</span>
         </div>
-        <div style={{ height: 4, background: '#0f172a', borderRadius: 2, overflow: 'hidden' }}>
+        <div style={{ height: 3, background: '#0f172a', borderRadius: 2, overflow: 'hidden' }}>
           <div style={{ width: `${Math.min(100, Math.max(0, pct))}%`, height: '100%', background: c, borderRadius: 2, boxShadow: warn ? `0 0 8px #f8717166` : `0 0 8px ${c}44` }} />
         </div>
       </div>
@@ -292,11 +308,30 @@ const GaugeRow = ({ icon, label, value, pct, fillColor = '#4a7adf', warn }: Gaug
 }
 
 interface ToggleProps { label: string; on: boolean }
+// const Toggle = ({ label, on }: ToggleProps) => (
+//   <div style={{ background: on ? 'rgba(34,197,94,0.18)' : 'rgba(248,113,113,0.16)', border: `1px solid ${on ? 'rgba(34,197,94,0.35)' : 'rgba(248,113,113,0.35)'}`, borderRadius: 10, padding: '10px 8px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 4 }}>
+//   <div style={{ fontSize: 9, letterSpacing: 1, color: '#94a3b8', textTransform: 'uppercase' }}>{label}</div>
+//   <div style={{ fontSize: 13, fontWeight: 700, color: on ? '#86efac' : '#fca5a5' }}>{on ? 'ON' : 'OFF'}</div>
+// </div>
+// )
+// const Toggle = ({ label, on }: ToggleProps) => (
+//   <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 6px', background: on ? 'rgba(34,197,94,0.08)' : 'rgba(15,23,42,0.6)', border: `1px solid ${on ? 'rgba(34,197,94,0.25)' : 'rgba(56,189,248,0.08)'}`, borderRadius: 6, minWidth: 0, overflow: 'hidden' }}>
+//     <div style={{ width: 5, height: 5, borderRadius: '50%', background: on ? '#4ade80' : '#334155', flexShrink: 0, boxShadow: on ? '0 0 4px #4ade80' : 'none' }} />
+//     <div style={{ fontSize: 8.5, letterSpacing: 0.8, color: on ? '#86efac' : '#475569', textTransform: 'uppercase', fontWeight: on ? 600 : 400 }}>{label}</div>
+//   </div>
+// )
+
+// const Toggle = ({ label, on }: ToggleProps) => (
+//   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 8px', background: on ? 'rgba(34,197,94,0.08)' : 'rgba(248,113,113,0.08)', border: `1px solid ${on ? 'rgba(34,197,94,0.25)' : 'rgba(248,113,113,0.25)'}`, borderRadius: 6 }}>
+//     <span style={{ fontSize: 7.5, letterSpacing: 0.8, color: on ? '#86efac' : '#fca5a5', textTransform: 'uppercase', fontWeight: 600 }}>{label}</span>
+//     <span style={{ fontSize: 7.5, fontFamily: 'DM Mono, monospace', color: on ? '#86efac' : '#fca5a5', fontWeight: 700 }}>{on ? 'ON' : 'OFF'}</span>
+//   </div>
+// )
+
 const Toggle = ({ label, on }: ToggleProps) => (
-  <div style={{ background: on ? 'rgba(34,197,94,0.18)' : 'rgba(248,113,113,0.16)', border: `1px solid ${on ? 'rgba(34,197,94,0.35)' : 'rgba(248,113,113,0.35)'}`, borderRadius: 10, padding: '10px 8px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 4 }}>
-  <div style={{ fontSize: 9, letterSpacing: 1, color: '#94a3b8', textTransform: 'uppercase' }}>{label}</div>
-  <div style={{ fontSize: 13, fontWeight: 700, color: on ? '#86efac' : '#fca5a5' }}>{on ? 'ON' : 'OFF'}</div>
-</div>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', background: on ? 'rgba(34,197,94,0.08)' : 'rgba(248,113,113,0.08)', border: `1px solid ${on ? 'rgba(34,197,94,0.25)' : 'rgba(248,113,113,0.25)'}`, borderRadius: 6, minHeight: 32 }}>
+    <span style={{ fontSize: 7.5, letterSpacing: 0.8, color: on ? '#86efac' : '#fca5a5', textTransform: 'uppercase', fontWeight: 600, textAlign: 'center', width: '100%' }}>{label}</span>
+  </div>
 )
 
 
@@ -304,8 +339,8 @@ const Toggle = ({ label, on }: ToggleProps) => (
 interface AlertCardProps { title: string; sub: string; level?: 'danger' | 'warn' }
 const AlertCard = ({ title, sub, level = 'danger' }: AlertCardProps) => (
   <div style={{ background: level === 'danger' ? 'rgba(248,113,113,0.15)' : 'rgba(250,204,21,0.13)', border: `1px solid ${level === 'danger' ? 'rgba(248,113,113,0.4)' : 'rgba(250,204,21,0.35)'}`, borderLeft: `3px solid ${level === 'danger' ? '#f87171' : '#fde047'}`, borderRadius: 6, padding: '8px 10px', marginBottom: 6 }}>
-  <div style={{ fontSize: 11, color: level === 'danger' ? '#fecaca' : '#fef9c3', fontWeight: 600, marginBottom: 2 }}>{title}</div>
-  <div style={{ fontSize: 10, color: '#94a3b8', lineHeight: 1.4 }}>{sub}</div>
+  <div style={{ fontSize: 9, color: level === 'danger' ? '#fecaca' : '#fef9c3', fontWeight: 600, marginBottom: 2 }}>{title}</div>
+  <div style={{ fontSize: 8, color: '#94a3b8', lineHeight: 1.4 }}>{sub}</div>
 </div>
 )
 
@@ -317,7 +352,7 @@ const TaskItem = ({ status, name, pct = 0 }: TaskItemProps) => {
     <div style={{ padding: '8px 0', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
         <div style={{ fontSize: 8, letterSpacing: 2, textTransform: 'uppercase', color: sc }}>{status}</div>
-        {status === 'active' && <div style={{ fontSize: 9, fontFamily: 'DM Mono, monospace', color: '#c084fc' }}>{pct}%</div>}
+        {status === 'active' && <div style={{ fontSize: 9, fontFamily: 'JetBrains Mono, Fira Code, monospace', color: '#c084fc' }}>{pct}%</div>}
         {status === 'complete' && <div style={{ fontSize: 9, color: '#38bdf8' }}>✓</div>}
       </div>
       <div style={{ fontSize: 11.5, color: status === 'upcoming' ? '#64748b' : '#e2e8f0', fontWeight: 500, marginBottom: 5 }}>{name}</div>
@@ -337,19 +372,19 @@ const Col = ({ children, style }: { children: React.ReactNode; style?: React.CSS
 interface ImuBoxProps { labelColor: string; x: number; y: number; heading: number }
 const ImuBox = ({ labelColor, x, y, heading }: ImuBoxProps) => {
   const rows = [
-    { key: 'x', icon: <IconPosX color={labelColor} />, sub: 'X coord', val: x.toFixed(1) },
-    { key: 'y', icon: <IconPosY color={labelColor} />, sub: 'Y coord', val: y.toFixed(1) },
+    { key: 'x', icon: <IconPosX color={labelColor} />, sub: 'X coordinate', val: x.toFixed(1) },
+    { key: 'y', icon: <IconPosY color={labelColor} />, sub: 'Y coordinate', val: y.toFixed(1) },
     { key: 'h', icon: <IconCompass color={labelColor} heading={heading} />, sub: 'Heading', val: `${heading.toFixed(1)}°` },
   ]
   return (
     <div style={{ background: 'rgba(15,23,42,0.7)', border: `1px solid ${labelColor}28`, borderRadius: 7, padding: '5px 7px' }}>
-      <div style={{ fontSize: 7.5, letterSpacing: 3, color: labelColor, textTransform: 'uppercase', opacity: 0.7, marginBottom: 4 }}>IMU position</div>
+      {/* <div style={{ fontSize: 7.5, letterSpacing: 3, color: labelColor, textTransform: 'uppercase', opacity: 0.7, marginBottom: 4 }}>IMU position</div> */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         {rows.map(({ key, icon, val, sub }) => (
           <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-            <div style={{ width: 20, height: 20, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, background: `${labelColor}12`, border: `1px solid ${labelColor}28` }}>{icon}</div>
-            <span style={{ fontSize: 9, letterSpacing: 1.5, color: labelColor, opacity: 0.7, textTransform: 'uppercase', width: 52, flexShrink: 0 }}>{sub}</span>
-            <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10.5, color: labelColor, marginLeft: 'auto' }}>{val}</span>
+            <div style={{ width: 18, height: 18, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, background: `${labelColor}12`, border: `1px solid ${labelColor}28` }}>{icon}</div>
+            <div style={{ fontSize: 7, letterSpacing: 1.5, color: labelColor, opacity: 0.7, textTransform: 'uppercase'}}>{sub}</div>
+            <div style={{ fontFamily: 'JetBrains Mono, Fira Code, monospace', fontSize: 8, color: labelColor, marginLeft: 'auto' }}>{val}</div>
           </div>
         ))}
       </div>
@@ -387,12 +422,12 @@ const TelemetryCol = (p: TelemetryColProps) => {
       {/* Hero */}
       <div style={{ flex: '0 0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 96, minWidth: 72, flexShrink: 0, borderRadius: 12, padding: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `rgba(${p.glowRgb},0.06)`, border: `1px solid rgba(${p.glowRgb},0.18)`, boxShadow: `0 0 12px rgba(${p.glowRgb},0.12)` }}>
+          <div style={{ width: 64, minWidth: 48, flexShrink: 0, borderRadius: 12, padding: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `rgba(${p.glowRgb},0.06)`, border: `1px solid rgba(${p.glowRgb},0.18)`, boxShadow: `0 0 12px rgba(${p.glowRgb},0.12)` }}>
             <img src={astronaut} alt={p.astronautAlt} style={{ width: '88%', height: 'auto', objectFit: 'contain', filter: `drop-shadow(0 0 8px rgba(${p.glowRgb},0.45))` }} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 8, letterSpacing: 3, color: p.accentColor, textTransform: 'uppercase', marginBottom: 2 }}>Suit telemetry</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: p.headingTextColor, textShadow: `0 0 14px rgba(${p.glowRgb},0.3)`, marginBottom: 6 }}>{p.evaLabel}</div>
+            <div style={{ fontSize: 8, letterSpacing: 3, color: p.accentColor, textTransform: 'uppercase', marginBottom: 2 }}>Suit telemetry - {p.evaLabel}</div>
+            {/* <div style={{ fontSize: 14, fontWeight: 700, color: p.headingTextColor, textShadow: `0 0 14px rgba(${p.glowRgb},0.3)`, marginBottom: 6 }}>{p.evaLabel}</div> */}
             <GaugeRow icon={<IconBattery color={p.accentColor} />} label={p.battery1Label} value={`${p.battery1.toFixed(0)}%`} pct={p.battery1} fillColor={p.accentColor} warn={w('primary_battery_level')} />
             <GaugeRow icon={<IconBattery color={p.dimColor} />} label={p.battery2Label} value={`${p.battery2.toFixed(0)}%`} pct={p.battery2} fillColor={p.accentColor} warn={w('secondary_battery_level')} />
             <GaugeRow icon={<IconTemp color={p.accentColor} />} label="Suit temp" value={`${p.temperature.toFixed(1)}°C`} pct={pctRange(p.temperature, 10, 32)} fillColor={p.accentColor} warn={w('temperature')} />
@@ -581,19 +616,19 @@ export default function Eva1Page() {
   })
 
   return (
-    <div style={{ display: 'grid', width: '100vw', height: '100vh', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr)', gridTemplateRows: 'auto 1fr', background: '#060e1a', color: '#e2e8f0', fontFamily: "'DM Sans', sans-serif", fontSize: 13, overflow: 'hidden', boxSizing: 'border-box' }}>
+    <div style={{ display: 'grid', width: '100vw', height: '100vh', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr) 130px 220px', gridTemplateRows: 'auto 1fr', background: '#060e1a', color: '#e2e8f0', fontFamily: "'DM Sans', sans-serif", fontSize: 13, overflow: 'hidden', boxSizing: 'border-box' }}>
 
       {/* ── TOP BAR ── */}
-      <div style={{ gridColumn: '1 / -1', background: 'rgba(10,18,30,0.98)', borderBottom: '1px solid rgba(56,189,248,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 24px', backdropFilter: 'blur(8px)', height: 52 }}>
+      <div style={{ gridColumn: '1 / -1', background: 'rgba(10,18,30,0.98)', borderBottom: '1px solid rgba(56,189,248,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 24px', backdropFilter: 'blur(8px)', height: 30 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ background: '#0f172a', border: '1px solid rgba(56,189,248,0.22)', borderRadius: 4, padding: '3px 10px', fontSize: 9.5, letterSpacing: 3, color: '#94a3b8', textTransform: 'uppercase' }}>ISS-EVA-047</div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 500, color: '#8890b8', letterSpacing: 1 }}>Extravehicular Activity</div>
+            <div style={{ fontSize: 10, fontWeight: 500, color: '#8890b8', letterSpacing: 1 }}>Extravehicular Activity</div>
             <div style={{ fontSize: 9, color: backendConnected ? '#6ee7b7' : '#94a3b8', letterSpacing: 1 }}>{backendConnected ? '● Backend connected' : '○ Waiting for data'}</div>
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 24, fontWeight: 300, color: '#c8cce0', letterSpacing: 5, textShadow: '0 0 12px rgba(56,189,248,0.5)' }}>{formatTime(missionElapsed)}</div>
+          <div style={{ fontFamily: 'JetBrains Mono, Fira Code, monospace', fontSize: 12, fontWeight: 300, color: '#c8cce0', letterSpacing: 5, textShadow: '0 0 12px rgba(56,189,248,0.5)' }}>{formatTime(missionElapsed)}</div>
           <div style={{ fontSize: 8, letterSpacing: 3, color: '#475569', textTransform: 'uppercase' }}>mission elapsed</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -613,8 +648,8 @@ export default function Eva1Page() {
       <TelemetryCol
         evaLabel="EVA-1" accentColor={blue} dimColor={blueDim}
         glowRgb="56,189,248" headingTextColor="#c8f9ff" astronautAlt="EVA-1"
-        battery1={eva1.primary_battery_level} battery1Label="Primary batt"
-        battery2={eva1.secondary_battery_level} battery2Label="Secondary batt"
+        battery1={eva1.primary_battery_level} battery1Label="Primary battery"
+        battery2={eva1.secondary_battery_level} battery2Label="Secondary battery"
         temperature={eva1.temperature}
         imuX={imu.eva1.posx} imuY={imu.eva1.posy} imuHeading={imu.eva1.heading}
         oxyPriStorage={eva1.oxy_pri_storage} oxySecStorage={eva1.oxy_sec_storage}
@@ -631,8 +666,8 @@ export default function Eva1Page() {
       <TelemetryCol
         evaLabel="EVA-2" accentColor={purple} dimColor={purpleDim}
         glowRgb="192,132,252" headingTextColor="#f3e8ff" astronautAlt="EVA-2"
-        battery1={eva2.battery_level} battery1Label="Primary batt"
-        battery2={eva2.battery_level} battery2Label="Secondary batt"
+        battery1={eva2.battery_level} battery1Label="Primary battery"
+        battery2={eva2.battery_level} battery2Label="Secondary battery"
         temperature={eva2.temperature}
         imuX={imu.eva2.posx} imuY={imu.eva2.posy} imuHeading={imu.eva2.heading}
         oxyPriStorage={eva2.oxy_pri_storage} oxySecStorage={eva2.oxy_sec_storage}
@@ -647,11 +682,11 @@ export default function Eva1Page() {
 
       {/* ── SYSTEMS ── */}
       <Col style={{ borderLeft: '1px solid rgba(56,189,248,0.08)' }}>
-        <div style={{ fontSize: 9, letterSpacing: 3, color: '#7dd3fc', textTransform: 'uppercase', paddingBottom: 4, borderBottom: '1px solid rgba(56,189,248,0.12)', flexShrink: 0 }}>Systems &amp; Control</div>
+        <div style={{ fontSize: 8, letterSpacing: 3, color: '#7dd3fc', textTransform: 'uppercase', paddingBottom: 4, borderBottom: '1px solid rgba(56,189,248,0.12)', flexShrink: 0 }}>Systems &amp; Control</div>
 
         <div style={{ flexShrink: 0 }}>
           <SectionLabel color="#7dd3fc">DCU — EVA-1</SectionLabel>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
             <Toggle label="OXY" on={dcu.eva1.oxy} />
             <Toggle label="FAN" on={dcu.eva1.fan} />
             <Toggle label="PUMP" on={dcu.eva1.pump} />
@@ -665,7 +700,7 @@ export default function Eva1Page() {
 
         <div style={{ flexShrink: 0 }}>
           <SectionLabel color="#7dd3fc">DCU — EVA-2</SectionLabel>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
             <Toggle label="BATT" on={dcu.eva2.batt} />
             <Toggle label="OXY" on={dcu.eva2.oxy} />
             <Toggle label="COMM" on={dcu.eva2.comm} />
@@ -679,7 +714,7 @@ export default function Eva1Page() {
 
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <SectionLabel color="#7dd3fc">UIA Switches</SectionLabel>
-          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'repeat(5, 1fr)', gap: 6 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
             <Toggle label="EVA1 PWR" on={uia.eva1_power} />
             <Toggle label="EVA2 PWR" on={uia.eva2_power} />
             <Toggle label="EVA1 OXY" on={uia.eva1_oxy} />
@@ -700,8 +735,8 @@ export default function Eva1Page() {
         {/* Top half — Alerts */}
         <div style={{ flex: 1, minHeight: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6, borderBottom: '1px solid rgba(56,189,248,0.12)', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-            <div style={{ fontSize: 9, letterSpacing: 3, color: '#7dd3fc', textTransform: 'uppercase' }}>⚠ Active Alerts</div>
-            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, background: alerts.length > 0 ? 'rgba(248,113,113,0.2)' : 'rgba(34,197,94,0.15)', color: alerts.length > 0 ? '#fca5a5' : '#86efac', borderRadius: 10, padding: '1px 8px', border: `1px solid ${alerts.length > 0 ? 'rgba(248,113,113,0.35)' : 'rgba(34,197,94,0.3)'}` }}>
+            <div style={{ fontSize: 8, letterSpacing: 3, color: '#7dd3fc', textTransform: 'uppercase' }}>⚠ Active Alerts</div>
+            <div style={{ fontFamily: 'JetBrains Mono, Fira Code, monospace', fontSize: 10, background: alerts.length > 0 ? 'rgba(248,113,113,0.2)' : 'rgba(34,197,94,0.15)', color: alerts.length > 0 ? '#fca5a5' : '#86efac', borderRadius: 10, padding: '1px 8px', border: `1px solid ${alerts.length > 0 ? 'rgba(248,113,113,0.35)' : 'rgba(34,197,94,0.3)'}` }}>
               {alerts.length} active
             </div>
           </div>
@@ -720,8 +755,8 @@ export default function Eva1Page() {
         {/* Bottom half — Tasks */}
         <div style={{ flex: 1, minHeight: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6, overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-            <div style={{ fontSize: 9, letterSpacing: 3, color: '#7dd3fc', textTransform: 'uppercase' }}>Mission Tasks</div>
-            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: '#7dd3fc' }}>
+            <div style={{ fontSize: 8, letterSpacing: 3, color: '#7dd3fc', textTransform: 'uppercase' }}>Mission Tasks</div>
+            <div style={{ fontFamily: 'JetBrains Mono, Fira Code, monospace', fontSize: 10, color: '#7dd3fc' }}>
               {tasks.filter(t => !!t).length} / 5
             </div>
           </div>
@@ -738,9 +773,9 @@ export default function Eva1Page() {
               ) : (
                 <div key={i} style={{ padding: '9px 10px', marginBottom: 5, borderRadius: 6, background: 'rgba(56,189,248,0.06)', border: '1px dashed rgba(56,189,248,0.2)', display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: 18, height: 18, borderRadius: '50%', border: '1px solid rgba(56,189,248,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <span style={{ fontSize: 9, color: '#334d66', fontFamily: 'DM Mono, monospace' }}>{i + 1}</span>
+                    <span style={{ fontSize: 9, color: '#334d66', fontFamily: 'JetBrains Mono, Fira Code, monospace' }}>{i + 1}</span>
                   </div>
-                  <div style={{ fontSize: 10.5, color: '#2d4a6b', fontStyle: 'italic', letterSpacing: 0.5 }}>Task slot {i + 1} — awaiting assignment</div>
+                  <div style={{ fontSize: 8, color: '#2d4a6b', fontStyle: 'italic', letterSpacing: 0.5 }}>Task slot {i + 1} — awaiting assignment</div>
                 </div>
               )
             ))}
