@@ -3,6 +3,11 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import type { RoverData, EvaData, LtvData, LtvErrorsData, MetricWarningAlert, MatrixUpdate } from '../types'
 
+interface VoiceCaption {
+  text: string
+  ts: number
+}
+
 interface SocketContextType {
   roverData: RoverData | null
   evaData: EvaData | null
@@ -10,7 +15,9 @@ interface SocketContextType {
   ltvErrorsData: LtvErrorsData | null
   metricWarnings: MetricWarningAlert[]
   matrixUpdate: MatrixUpdate | null
+  voiceCaption: VoiceCaption | null
   sendVoiceString: (voiceString: string) => void
+  sendCorvusPtt: () => void
 }
 
 const SocketContext = createContext<SocketContextType | null>(null)
@@ -22,11 +29,12 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [ltvErrorsData, setLtvErrorsData] = useState<LtvErrorsData | null>(null)
   const [metricWarnings, setMetricWarnings] = useState<MetricWarningAlert[]>([])
   const [matrixUpdate, setMatrixUpdate] = useState<MatrixUpdate | null>(null)
+  const [voiceCaption, setVoiceCaption] = useState<VoiceCaption | null>(null)
   const socketRef = useRef<Socket | null>(null)
 
   useEffect(() => {
     const socket = io('http://localhost:5001', {
-      transports: ['websocket', 'polling'],
+      transports: ['polling'],
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 5
@@ -37,6 +45,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     socket.on('ltv-telemetry', (data: LtvData) => setLtvData(data))
     socket.on('ltv-errors-telemetry', (data: LtvErrorsData) => setLtvErrorsData(data))
     socket.on('matrix-update', (data: MatrixUpdate) => setMatrixUpdate(data))
+    socket.on('voiceString', (text: unknown) => {
+      setVoiceCaption({ text: String(text ?? ''), ts: Date.now() })
+    })
     socket.on('metric-warning', (data: MetricWarningAlert | MetricWarningAlert[]) => {
       const incoming = Array.isArray(data) ? data : [data]
       const timestamped = incoming.map((alert) => ({
@@ -56,8 +67,22 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     socketRef.current?.emit('voiceString', voiceString)
   }
 
+  const sendCorvusPtt = () => {
+    socketRef.current?.emit('corvus-ptt')
+  }
+
   return (
-    <SocketContext.Provider value={{ roverData, evaData, ltvData, ltvErrorsData, metricWarnings, matrixUpdate, sendVoiceString }}>
+    <SocketContext.Provider value={{
+      roverData,
+      evaData,
+      ltvData,
+      ltvErrorsData,
+      metricWarnings,
+      matrixUpdate,
+      voiceCaption,
+      sendVoiceString,
+      sendCorvusPtt,
+    }}>
       {children}
     </SocketContext.Provider>
   )

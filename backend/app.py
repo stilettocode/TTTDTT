@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
+import os
 import time
 import threading
 import json
@@ -8,12 +9,14 @@ from datetime import datetime
 
 from udp_client import TSSUdpClient
 
+VERBOSE = os.environ.get("TTTDTT_VERBOSE", "").lower() in ("1", "true", "yes", "on")
+
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading", logger=True, engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading", logger=VERBOSE, engineio_logger=VERBOSE)
 
 #tss
-TSS_UDP_HOST = "172.24.149.156"
+TSS_UDP_HOST = "172.22.188.55"
 
 udp_client = TSSUdpClient(TSS_UDP_HOST)
 
@@ -101,25 +104,29 @@ def fetch_loop():
             rover_data = udp_client.fetch_rover_json()
             rover_data["local_timestamp"] = datetime.now().isoformat()
             socketio.emit("rover-telemetry", rover_data)
-            print(f"Fetched rover data: {rover_data}")
+            if VERBOSE:
+                print(f"Fetched rover data: {rover_data}")
             time.sleep(1)
 
             eva_data = udp_client.fetch_eva_json()
             eva_data["local_timestamp"] = datetime.now().isoformat()
             socketio.emit("eva-telemetry", eva_data)
-            print(f"Fetched eva data: {eva_data}")
+            if VERBOSE:
+                print(f"Fetched eva data: {eva_data}")
             time.sleep(1)
 
             ltv_data = udp_client.fetch_ltv_json()
             ltv_data["local_timestamp"] = datetime.now().isoformat()
             socketio.emit("ltv-telemetry", ltv_data)
-            print(f"Fetched ltv data: {ltv_data}")
+            if VERBOSE:
+                print(f"Fetched ltv data: {ltv_data}")
             time.sleep(1)
 
             ltv_errors_data = udp_client.fetch_ltv_errors_json()
             ltv_errors_data["local_timestamp"] = datetime.now().isoformat()
             socketio.emit("ltv-errors-telemetry", ltv_errors_data)
-            print(f"Fetched ltv errors data: {ltv_errors_data}")
+            if VERBOSE:
+                print(f"Fetched ltv errors data: {ltv_errors_data}")
             time.sleep(1)
 
         except Exception as e:
@@ -167,6 +174,12 @@ def handle_voice_string(data):
     voice_string = str(data)
     print(f"Voice string received: {voice_string}")
     socketio.emit("voiceString", voice_string)
+
+
+@socketio.on("corvus-ptt")
+def handle_corvus_ptt(_data=None):
+    print("corvus-ptt received")
+    socketio.emit("corvus-ptt")
 
 
 @socketio.on("set_brakes")
@@ -301,5 +314,6 @@ if __name__ == "__main__":
     # udp-based fetch loop
     fetch_thread = threading.Thread(target=fetch_loop, daemon=True)
     fetch_thread.start()
-    print("Starting Flask + SocketIO on 0.0.0.0:5001 (LAN clients use this host's IP)")
+    mode = "VERBOSE" if VERBOSE else "quiet (set TTTDTT_VERBOSE=1 for full logs)"
+    print(f"Starting Flask + SocketIO on 0.0.0.0:5001 — log mode: {mode}")
     socketio.run(app, host="0.0.0.0", port=5001)

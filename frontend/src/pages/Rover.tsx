@@ -1,9 +1,8 @@
 // pages/Rover.tsx
-import { useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSocket } from '../context/SocketContext'
 
 const YOUTUBE_LIVE_ID = 'm3kR2KK8TEs'
-const TEST_VOICE_STRING = 'Test voice string'
 
 // ── Layout constants ──────────────────────────────────────────────
 // Tweak these to shift panels without touching JSX
@@ -96,15 +95,9 @@ function ThermalIndicator({ temp, target }: { temp: number | undefined; target: 
 // ── Page ──────────────────────────────────────────────────────────
 
 export default function RoverPage() {
-  const { roverData, ltvData, sendVoiceString } = useSocket() as {
-    roverData: any
-    ltvData: any
-    sendVoiceString: (voiceString: string) => void
-  }
-  const [isRecording, setIsRecording] = useState(false)
-  const recognitionRef = useRef<any>(null)
-  const transcriptRef = useRef('')
-  const shouldSendVoiceRef = useRef(false)
+  const { roverData, ltvData, voiceCaption, sendCorvusPtt } = useSocket()
+  const [isBusy, setIsBusy] = useState(false)
+  const [captionText, setCaptionText] = useState<string>('')
 
   const pr = roverData?.pr_telemetry
   const ltv = ltvData
@@ -121,57 +114,24 @@ export default function RoverPage() {
   }
 
   const handleVoiceClick = () => {
-    if (isRecording) {
-      shouldSendVoiceRef.current = true
-      recognitionRef.current?.stop()
-      setIsRecording(false)
-      return
-    }
-
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-
-    if (!SpeechRecognition) {
-      sendVoiceString(TEST_VOICE_STRING)
-      return
-    }
-
-    transcriptRef.current = ''
-    shouldSendVoiceRef.current = false
-
-    const recognition = new SpeechRecognition()
-    recognition.continuous = true
-    recognition.interimResults = true
-    recognition.lang = 'en-US'
-    recognition.onresult = (event: any) => {
-      let transcript = ''
-      for (let i = 0; i < event.results.length; i += 1) {
-        transcript += event.results[i][0].transcript
-      }
-      transcriptRef.current = transcript
-    }
-    recognition.onend = () => {
-      if (shouldSendVoiceRef.current) {
-        const voiceString = transcriptRef.current.trim() || TEST_VOICE_STRING
-        sendVoiceString(voiceString)
-      }
-      shouldSendVoiceRef.current = false
-      recognitionRef.current = null
-      setIsRecording(false)
-    }
-    recognition.onerror = () => {
-      transcriptRef.current = TEST_VOICE_STRING
-      shouldSendVoiceRef.current = true
-    }
-
-    recognitionRef.current = recognition
-    try {
-      recognition.start()
-      setIsRecording(true)
-    } catch {
-      sendVoiceString(TEST_VOICE_STRING)
-    }
+    if (isBusy) return
+    sendCorvusPtt()
+    setIsBusy(true)
   }
+
+  useEffect(() => {
+    if (!voiceCaption) return
+    setIsBusy(false)
+    setCaptionText(voiceCaption.text)
+    const handle = window.setTimeout(() => setCaptionText(''), 6000)
+    return () => window.clearTimeout(handle)
+  }, [voiceCaption])
+
+  useEffect(() => {
+    if (!isBusy) return
+    const handle = window.setTimeout(() => setIsBusy(false), 10000)
+    return () => window.clearTimeout(handle)
+  }, [isBusy])
 
   return (
     <div style={styles.root}>
@@ -263,18 +223,22 @@ export default function RoverPage() {
           <HudStat label="PING"   value={ltv?.signal?.ping_requested ?? '—'} align="center" />
         </div>
 
-        {/* ── BOTTOM RIGHT — voice button ── */}
+        {/* ── BOTTOM RIGHT — PTT button + caption ── */}
         <div style={styles.bottomRight}>
+          {captionText && (
+            <div style={styles.caption}>{captionText}</div>
+          )}
           <button
             type="button"
             onClick={handleVoiceClick}
+            disabled={isBusy}
             style={{
               ...styles.voiceButton,
-              ...(isRecording ? styles.voiceButtonRecording : {}),
+              ...(isBusy ? styles.voiceButtonBusy : {}),
               pointerEvents: 'auto',
             }}
           >
-            {isRecording ? '● STOP' : '🎙 VOICE'}
+            {isBusy ? '● LISTENING' : '🎙 PTT'}
           </button>
         </div>
 
@@ -348,8 +312,25 @@ const styles: Record<string, React.CSSProperties> = {
     bottom: 20,
     right: 20,
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    gap: 8,
+    maxWidth: 360,
+  },
+  caption: {
+    background: 'rgba(0,0,0,0.62)',
+    backdropFilter: 'blur(6px)',
+    border: '0.5px solid rgba(0,255,180,0.22)',
+    borderRadius: 6,
+    color: '#e8fff8',
+    fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+    fontSize: 13,
+    letterSpacing: '0.04em',
+    padding: '8px 12px',
+    pointerEvents: 'none',
+    textAlign: 'right',
+    maxWidth: 360,
   },
 
   sectionTitle: {
@@ -377,10 +358,12 @@ const styles: Record<string, React.CSSProperties> = {
     textTransform: 'uppercase' as const,
     pointerEvents: 'auto',
   },
-  voiceButtonRecording: {
+  voiceButtonBusy: {
     background: 'rgba(248,113,113,0.16)',
     borderColor: 'rgba(248,113,113,0.65)',
     color: '#fecaca',
+    cursor: 'not-allowed',
+    opacity: 0.85,
   },
 }
 
