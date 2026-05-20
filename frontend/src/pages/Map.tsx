@@ -77,6 +77,7 @@ function applyMatrixUpdate(current: MatrixCells, update: MatrixUpdate) {
   return next
 }
 
+const MATRIX_CELL_SIZE_M = 5
 function MatrixOverlay({ cells }: { cells: MatrixCells }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
@@ -95,10 +96,10 @@ function MatrixOverlay({ cells }: { cells: MatrixCells }) {
       const color = MATRIX_COLORS[value]
       if (!color) return
 
-      const left = (x - WORLD_MIN_X) * CELL_WIDTH
-      const top = (WORLD_MAX_Y - y) * CELL_HEIGHT
+      const left = (x - WORLD_MIN_X) * CELL_WIDTH * MATRIX_CELL_SIZE_M
+      const top  = (WORLD_MAX_Y - y) * CELL_HEIGHT * MATRIX_CELL_SIZE_M
       ctx.fillStyle = color
-      ctx.fillRect(left - 2, top - 2, CELL_WIDTH + 4, CELL_HEIGHT + 4)
+      ctx.fillRect(left - 2, top - 2, CELL_WIDTH * MATRIX_CELL_SIZE_M + 4, CELL_HEIGHT * MATRIX_CELL_SIZE_M + 4)
 
       ctx.fillStyle = value === 3 || value === 5 ? '#111827' : '#f8fafc'
       ctx.fillText(String(value), left + CELL_WIDTH / 2, top + CELL_HEIGHT / 2)
