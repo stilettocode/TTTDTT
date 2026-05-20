@@ -11,6 +11,7 @@ interface SocketContextType {
   metricWarnings: MetricWarningAlert[]
   matrixUpdate: MatrixUpdate | null
   sendVoiceString: (voiceString: string) => void
+  sendCabinControl: (control: { heating?: boolean; cooling?: boolean }) => void
 }
 
 const SocketContext = createContext<SocketContextType | null>(null)
@@ -59,8 +60,17 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     socketRef.current?.emit('voiceString', voiceString)
   }
 
+  const sendCabinControl = (control: { heating?: boolean; cooling?: boolean }) => {
+    if (control.heating !== undefined) {
+      socketRef.current?.emit('set_heating', control.heating ? 1.0 : 0.0)
+    }
+    if (control.cooling !== undefined) {
+      socketRef.current?.emit('set_cooling', control.cooling ? 1.0 : 0.0)
+    }
+  }
+
   return (
-    <SocketContext.Provider value={{ roverData, evaData, ltvData, ltvErrorsData, metricWarnings, matrixUpdate, sendVoiceString }}>
+    <SocketContext.Provider value={{ roverData, evaData, ltvData, ltvErrorsData, metricWarnings, matrixUpdate, sendVoiceString, sendCabinControl }}>
       {children}
     </SocketContext.Provider>
   )

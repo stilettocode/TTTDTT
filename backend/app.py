@@ -14,7 +14,7 @@ CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading", logger=True, engineio_logger=True)
 
 #tss
-TSS_UDP_HOST = os.environ.get("TSS_UDP_HOST", "172.24.149.156")
+TSS_UDP_HOST = os.environ.get("TSS_UDP_HOST", "192.168.4.230")
 TSS_UDP_PORT = int(os.environ.get("TSS_UDP_PORT", "14141"))
 BACKEND_FETCH_INTERVAL_SEC = float(os.environ.get("BACKEND_FETCH_INTERVAL_SEC", "1.0"))
 
