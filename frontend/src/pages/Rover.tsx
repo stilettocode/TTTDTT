@@ -283,7 +283,7 @@ export default function RoverPage() {
           <HDivider />
           <HudStat label="LTV Y"  value={fmt(ltv?.location?.last_known_y)} unit=" m" align="center" />
           <HDivider />
-          <HudStat label="SIGNAL" value={fmt(ltv?.signal?.strength, 0)}    unit="%" align="center" warn={ltv?.signal?.strength < 20} />
+          <HudStat label="SIGNAL" value={fmt(ltv?.signal?.strength, 0)}    unit="dBm" align="center" warn={ltv?.signal?.strength < 20} />
           <HDivider />
           <HudStat label="PING"   value={ltv?.signal?.ping_requested ?? '—'} align="center" />
         </div>

@@ -339,6 +339,7 @@ export default function MapPage() {
   const [matrixCells, setMatrixCells] = useState<MatrixCells>(() => new Map())
   const [waypoints, setWaypoints] = useState<Waypoint[]>([])
   const [activeWaypointId, setActiveWaypointId] = useState<string | null>(null)
+  const [hoverCoords, setHoverCoords] = useState<{ x: number; y: number } | null>(null)
   const pointerDownRef = useRef<{ x: number; y: number } | null>(null)
   const scaleX = window.innerWidth / IMAGE_WIDTH
   const scaleY = window.innerHeight / IMAGE_HEIGHT
@@ -349,51 +350,51 @@ export default function MapPage() {
     setMatrixCells((current) => applyMatrixUpdate(current, matrixUpdate))
   }, [matrixUpdate])
 
-useEffect(() => {
-  if (!ltvData?.location) return
+  useEffect(() => {
+    if (!ltvData?.location) return
 
-  const { x, y } = worldToImage(
-    ltvData.location.last_known_x,
-    ltvData.location.last_known_y,
-  )
+    const { x, y } = worldToImage(
+      ltvData.location.last_known_x,
+      ltvData.location.last_known_y,
+    )
 
-  const waypoint: Waypoint = {
-    id: LTV_WAYPOINT_ID,
-    name: 'LTV',
-    color: 'yellow',
-    x,
-    y,
-  }
+    const waypoint: Waypoint = {
+      id: LTV_WAYPOINT_ID,
+      name: 'LTV-Last-Known',
+      color: 'yellow',
+      x,
+      y,
+    }
 
-  setWaypoints((current) => {
-    const exists = current.some((w) => w.id === LTV_WAYPOINT_ID)
-    return exists
-      ? current.map((w) => (w.id === LTV_WAYPOINT_ID ? waypoint : w))
-      : [...current, waypoint]
-  })
-}, [ltvData])
+    setWaypoints((current) => {
+      const exists = current.some((w) => w.id === LTV_WAYPOINT_ID)
+      return exists
+        ? current.map((w) => (w.id === LTV_WAYPOINT_ID ? waypoint : w))
+        : [...current, waypoint]
+    })
+  }, [ltvData])
 
-useEffect(() => {
-  console.log(roverData)
-  if (!roverData?.pr_telemetry?.rover_pos_x || !roverData?.pr_telemetry?.rover_pos_y) return
+  useEffect(() => {
+    console.log(roverData)
+    if (!roverData?.pr_telemetry?.rover_pos_x || !roverData?.pr_telemetry?.rover_pos_y) return
 
-  const { x, y } = worldToImage(roverData?.pr_telemetry?.rover_pos_x, roverData?.pr_telemetry?.rover_pos_y)
+    const { x, y } = worldToImage(roverData?.pr_telemetry?.rover_pos_x, roverData?.pr_telemetry?.rover_pos_y)
 
-  const waypoint: Waypoint = {
-    id: ROVER_WAYPOINT_ID,
-    name: 'Rover',
-    color: 'orange',
-    x,
-    y,
-  }
+    const waypoint: Waypoint = {
+      id: ROVER_WAYPOINT_ID,
+      name: 'Rover',
+      color: 'orange',
+      x,
+      y,
+    }
 
-  setWaypoints((current) => {
-    const exists = current.some((w) => w.id === ROVER_WAYPOINT_ID)
-    return exists
-      ? current.map((w) => (w.id === ROVER_WAYPOINT_ID ? waypoint : w))
-      : [...current, waypoint]
-  })
-}, [roverData])
+    setWaypoints((current) => {
+      const exists = current.some((w) => w.id === ROVER_WAYPOINT_ID)
+      return exists
+        ? current.map((w) => (w.id === ROVER_WAYPOINT_ID ? waypoint : w))
+        : [...current, waypoint]
+    })
+  }, [roverData])
 
   const updateWaypoint = (id: string, patch: Partial<Pick<Waypoint, 'color' | 'name'>>) => {
     setWaypoints((current) =>
@@ -437,48 +438,80 @@ useEffect(() => {
     setActiveWaypointId(id)
   }
 
+  const handleMapMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const imgX = ((event.clientX - rect.left) / rect.width) * IMAGE_WIDTH
+    const imgY = ((event.clientY - rect.top) / rect.height) * IMAGE_HEIGHT
+    const worldX = Math.round(WORLD_MIN_X + imgX / CELL_WIDTH)
+    const worldY = Math.round(WORLD_MAX_Y - imgY / CELL_HEIGHT)
+    setHoverCoords({ x: worldX, y: worldY })
+  }
+
   return (
     <div style={{ display: 'flex', width: '100vw', height: '100vh' }}>
 
-        <WaypointPanel
-          activeWaypointId={activeWaypointId}
-          onCollapse={() => setActiveWaypointId(null)}
-          onDelete={deleteWaypoint}
-          onSelect={setActiveWaypointId}
-          onUpdate={updateWaypoint}
-          waypoints={waypoints}
-        />
+      <WaypointPanel
+        activeWaypointId={activeWaypointId}
+        onCollapse={() => setActiveWaypointId(null)}
+        onDelete={deleteWaypoint}
+        onSelect={setActiveWaypointId}
+        onUpdate={updateWaypoint}
+        waypoints={waypoints}
+      />
 
-        {/* Map - takes up remaining space */}
-        <div style={{ flex: 1, overflow: 'hidden' }}>
-          <TransformWrapper
-            initialScale={fitScale}
-            minScale={fitScale}
-            maxScale={10}
-            wheel={{ step: 0.1 }}
-          >
-            <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
-              <div
-                onClick={handleMapClick}
-                onPointerDown={handleMapPointerDown}
-                style={{ position: 'relative', width: IMAGE_WIDTH, height: IMAGE_HEIGHT, cursor: 'crosshair' }}
-              >
-                <img
-                  src={mapImage}
-                  alt="Lunar Map"
-                  draggable={false}
-                  style={{ display: 'block', width: IMAGE_WIDTH, height: IMAGE_HEIGHT }}
-                />
-                <MatrixOverlay cells={matrixCells} />
-                <WaypointMarkers
-                  activeWaypointId={activeWaypointId}
-                  onSelect={setActiveWaypointId}
-                  waypoints={waypoints}
-                />
-              </div>
-            </TransformComponent>
-          </TransformWrapper>
-        </div>
+      {/* Map - takes up remaining space */}
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <TransformWrapper
+          initialScale={fitScale}
+          minScale={fitScale}
+          maxScale={10}
+          wheel={{ step: 0.1 }}
+        >
+          <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
+            <div
+              onClick={handleMapClick}
+              onPointerDown={handleMapPointerDown}
+              onMouseMove={handleMapMouseMove}
+              onMouseLeave={() => setHoverCoords(null)}
+              style={{ position: 'relative', width: IMAGE_WIDTH, height: IMAGE_HEIGHT, cursor: 'crosshair' }}
+            >
+              <img
+                src={mapImage}
+                alt="Lunar Map"
+                draggable={false}
+                style={{ display: 'block', width: IMAGE_WIDTH, height: IMAGE_HEIGHT }}
+              />
+              <MatrixOverlay cells={matrixCells} />
+              <WaypointMarkers
+                activeWaypointId={activeWaypointId}
+                onSelect={setActiveWaypointId}
+                waypoints={waypoints}
+              />
+              {hoverCoords && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 12,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'rgba(0,0,0,0.72)',
+                    color: 'white',
+                    fontSize: 12,
+                    fontFamily: 'monospace',
+                    padding: '4px 10px',
+                    borderRadius: 6,
+                    pointerEvents: 'none',
+                    zIndex: 10,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {hoverCoords.x}, {hoverCoords.y}
+                </div>
+              )}
+            </div>
+          </TransformComponent>
+        </TransformWrapper>
+      </div>
 
     </div>
   )
